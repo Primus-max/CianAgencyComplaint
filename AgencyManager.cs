@@ -1,22 +1,27 @@
-﻿using OpenQA.Selenium;
+﻿using AngleSharp.Dom;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Interactions;
+using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 
 namespace CianAgencyComplaint
 {
     public class AgencyManager
     {
-        private IWebDriver _driver;
+
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
         {
             // Получаем driver
-            _driver = WebDriverFactory.GetDriver();
+            IWebDriver _driver = WebDriverFactory.GetDriver();
 
             // Переходим на страницу агентств
             _driver.Navigate().GoToUrl("https://tomsk.cian.ru/agentstva/?regionId=4620&page=1");
             _driver.Manage().Window.Maximize();
 
-            Thread.Sleep(5000);
+            // Ожидаем полной загрузки страницы
+            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
             AcceptCookies(_driver);
             // Получаем общее количество страниц
@@ -39,11 +44,14 @@ namespace CianAgencyComplaint
                         ScrollToElement(_driver, agencyCard);
                         agencyCard.Click();
 
-                        Thread.Sleep(10000);
+
                         SwitchToNewTab(_driver);
 
+                        ClickViewAllOffersLink(_driver);
 
+                        SwitchToNewTab(_driver);
 
+                        int totalCountForComplaint = GetTotalOffers(_driver);
 
                         //int totalCountForComplaint = GetTotalOffers(_driver);
                         // Здесь можно добавить дополнительную логику для работы с найденным агентством
@@ -72,18 +80,15 @@ namespace CianAgencyComplaint
         // Переключаюсь на новую вкладку
         private static void SwitchToNewTab(IWebDriver driver)
         {
+            // Ожидаем полной загрузки страницы
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
             // Получаем все открытые вкладки
             IReadOnlyCollection<string> windowHandles = driver.WindowHandles;
 
             // Переключаемся на последнюю (новую) вкладку
             string newTabHandle = windowHandles.Last();
             driver.SwitchTo().Window(newTabHandle);
-
-            Thread.Sleep(2000);
-
-            ClickViewAllOffersLink(driver);
-
-            int totalCountForComplaint = GetTotalOffers(driver);
         }
 
         // Получаю число страниц которое надо будет обойти при поиске агенства
@@ -116,9 +121,11 @@ namespace CianAgencyComplaint
         // Возвращаю число объявлений на которые надо будет пожаловаться
         private static int GetTotalOffers(IWebDriver driver)
         {
-            // Ожидаем, пока загрузится страница с предложениями
-            //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            //wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("div[data-name='SummaryHeader'] h5")));
+            // Ожидаем полной загрузки страницы
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            IWebElement paginationElement = driver.FindElement(By.CssSelector("[data-name='Pagination']"));
 
             // Находим элемент с информацией о количестве предложений
             IWebElement totalOffersElement = driver.FindElement(By.CssSelector("div[data-name='SummaryHeader'] h5"));
@@ -137,6 +144,13 @@ namespace CianAgencyComplaint
         // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
         {
+            // Ожидаем полной загрузки страницы
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            IWebElement viewAllOffdfdfrsLink = driver.FindElement(By.CssSelector(".serp-list"));
+
+
             // Находим ссылку "Смотреть все предложения"
             IWebElement viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
 
