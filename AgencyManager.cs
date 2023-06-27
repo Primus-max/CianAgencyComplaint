@@ -1,8 +1,10 @@
 ﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CianAgencyComplaint
@@ -16,7 +18,11 @@ namespace CianAgencyComplaint
 
             // Переходим на страницу агентств
             _driver.Navigate().GoToUrl("https://tomsk.cian.ru/agentstva/?regionId=4620&page=1");
+            _driver.Manage().Window.Maximize();
 
+            Thread.Sleep(5000);
+
+            AcceptCookies(_driver);
             // Получаем общее количество страниц
             int totalPages = GetTotalPages(_driver);
 
@@ -31,12 +37,19 @@ namespace CianAgencyComplaint
                     IWebElement nameElement = agencyCard.FindElement(By.CssSelector("._9400a595a7--name--HPTnh > span"));
                     string agencyNameText = nameElement.Text;
 
-                    if (agencyNameText == agencyName)
+                    if (agencyNameText.ToLower() == agencyName.ToLower())
                     {
                         // Плавно прокручиваем к агентству и кликаем
                         ScrollToElement(_driver, agencyCard);
-                        //agencyCard.Click();
+                        agencyCard.Click();
 
+                        Thread.Sleep(10000);
+                        SwitchToNewTab(_driver);
+
+
+
+
+                        //int totalCountForComplaint = GetTotalOffers(_driver);
                         // Здесь можно добавить дополнительную логику для работы с найденным агентством
                         // ...
 
@@ -60,7 +73,24 @@ namespace CianAgencyComplaint
             // Если агентство не было найдено на всех страницах, можно добавить соответствующую обработку
         }
 
+        // Переключаюсь на новую вкладку
+        private static void SwitchToNewTab(IWebDriver driver)
+        {
+            // Получаем все открытые вкладки
+            IReadOnlyCollection<string> windowHandles = driver.WindowHandles;
 
+            // Переключаемся на последнюю (новую) вкладку
+            string newTabHandle = windowHandles.Last();
+            driver.SwitchTo().Window(newTabHandle);
+
+            Thread.Sleep(2000);
+
+            ClickViewAllOffersLink(driver);
+
+            int totalCountForComplaint = GetTotalOffers(driver);
+        }
+
+        // Получаю число страниц которое надо будет обойти при поиске агенства
         private static int GetTotalPages(IWebDriver driver)
         {
             // Находим последний элемент списка страниц
@@ -75,8 +105,7 @@ namespace CianAgencyComplaint
             return totalPages;
         }
 
-
-
+        // Скроллинг
         private static void ScrollToElement(IWebDriver driver, IWebElement element)
         {
             // Используем JavaScriptExecutor для выполнения скрипта прокрутки
@@ -84,6 +113,54 @@ namespace CianAgencyComplaint
 
             // Выполняем скрипт для прокрутки к элементу с использованием smooth behavior
             js.ExecuteScript("arguments[0].scrollIntoView({ behavior: 'smooth' });", element);
+
+            Thread.Sleep(1000);
+        }
+
+        // Возвращаю число объявлений на которые надо будет пожаловаться
+        private static int GetTotalOffers(IWebDriver driver)
+        {
+            // Ожидаем, пока загрузится страница с предложениями
+            //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            //wait.Until(ExpectedConditions.ElementIsVisible(By.CssSelector("div[data-name='SummaryHeader'] h5")));
+
+            // Находим элемент с информацией о количестве предложений
+            IWebElement totalOffersElement = driver.FindElement(By.CssSelector("div[data-name='SummaryHeader'] h5"));
+
+            // Получаем текст элемента
+            string totalOffersText = totalOffersElement.Text;
+
+            // Извлекаем число из текста
+            string numberString = Regex.Match(totalOffersText, @"\d+").Value;
+
+            // Преобразуем число в int и возвращаем
+            int totalOffers = int.Parse(numberString);
+            return totalOffers;
+        }
+
+        private static void ClickViewAllOffersLink(IWebDriver driver)
+        {
+            // Находим ссылку "Смотреть все предложения"
+            IWebElement viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
+
+            // Прокручиваем страницу к ссылке
+            ScrollToElement(driver, viewAllOffersLink);
+
+            // Кликаем на ссылку
+            viewAllOffersLink.Click();
+        }
+
+        private static void AcceptCookies(IWebDriver driver)
+        {
+            // Ищем элемент кнопки "Принять куки"
+            IWebElement acceptButton = driver.FindElement(By.CssSelector("button._25d45facb5--button--KVooB._25d45facb5--button--gs5R_._25d45facb5--M--I5Xj6._25d45facb5--button--DsA7r > span._25d45facb5--text--V2xLI"));
+
+            // Проверяем наличие кнопки "Принять куки"
+            if (acceptButton != null)
+            {
+                // Кликаем на кнопку "Принять куки"
+                acceptButton.Click();
+            }
         }
 
 
