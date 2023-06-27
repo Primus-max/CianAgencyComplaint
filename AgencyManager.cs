@@ -1,20 +1,16 @@
 ﻿using OpenQA.Selenium;
-using OpenQA.Selenium.Support.UI;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace CianAgencyComplaint
 {
     public class AgencyManager
     {
+        private IWebDriver _driver;
+        // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
         {
             // Получаем driver
-            IWebDriver _driver = WebDriverFactory.GetDriver();
+            _driver = WebDriverFactory.GetDriver();
 
             // Переходим на страницу агентств
             _driver.Navigate().GoToUrl("https://tomsk.cian.ru/agentstva/?regionId=4620&page=1");
@@ -138,6 +134,7 @@ namespace CianAgencyComplaint
             return totalOffers;
         }
 
+        // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
         {
             // Находим ссылку "Смотреть все предложения"
@@ -150,6 +147,7 @@ namespace CianAgencyComplaint
             viewAllOffersLink.Click();
         }
 
+        // Кликаю на  - принять куки
         private static void AcceptCookies(IWebDriver driver)
         {
             // Ищем элемент кнопки "Принять куки"
