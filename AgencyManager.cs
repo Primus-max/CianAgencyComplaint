@@ -1,7 +1,7 @@
-﻿using AngleSharp.Dom;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 namespace CianAgencyComplaint
@@ -55,11 +55,7 @@ namespace CianAgencyComplaint
 
                         ProcessAllOffers(_driver);
 
-                        //int totalCountForComplaint = GetTotalOffers(_driver);
-                        // Здесь можно добавить дополнительную логику для работы с найденным агентством
-                        // ...
 
-                        // Выходим из метода, так как наше агентство было найдено
                         return;
                     }
                 }
@@ -80,128 +76,237 @@ namespace CianAgencyComplaint
         }
 
 
-
+        // Получаю и нажимаю на кнопку - Пожаловаться
         private static void ProcessAllOffers(IWebDriver driver)
         {
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
-            // Находим элемент с пагинацией
-            IWebElement paginationElement = driver.FindElement(By.CssSelector("ul._93444fe79c--pages-list--gsEUE"));
+            HashSet<IWebElement> clickedElements = new HashSet<IWebElement>();
+            IWebElement paginationElement = null;
+            IWebElement lastPageElement;
+            IWebElement nextPageElement = null;
+            string lastPageText;
+            int maxPage;
 
-            // Находим последний элемент пагинации и получаем текст
-            IWebElement lastPageElement = paginationElement.FindElements(By.TagName("li")).Last();
-            string lastPageText = lastPageElement.Text;
+            IReadOnlyCollection<IWebElement> offerElements = null;
 
-            // Парсим текст в число, чтобы получить максимальное количество страниц
-            int maxPage = int.Parse(lastPageText);
+            // Блок на случай если пагинации нет, скорее всего одня страница
+            try
+            {
+                // Находим элемент с пагинацией
+                paginationElement = driver.FindElement(By.CssSelector("ul._93444fe79c--pages-list--gsEUE"));
+                // Находим последний элемент пагинации и получаем текст
+                lastPageElement = paginationElement.FindElements(By.TagName("li")).Last();
+                lastPageText = lastPageElement.Text;
+                // Парсим текст в число, чтобы получить максимальное количество страниц
+                maxPage = int.Parse(lastPageText);
+            }
+            catch (Exception)
+            {
+                maxPage = 1;
+            }
 
             // Цикл для прохода по всем страницам
             for (int page = 1; page <= maxPage; page++)
             {
-                // Получаем элементы с предложениями на текущей странице
-                IReadOnlyCollection<IWebElement> offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
-
-                // Проходим по каждому элементу и кликаем на него
-                foreach (IWebElement offerElement in offerElements)
+                try
                 {
+                    // Получаем элементы с предложениями на текущей странице
+                    offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
 
-                    ScrollToElement(driver, offerElement);
+                    // Проходим по каждому элементу и кликаем на него
+                    foreach (IWebElement offerElement in offerElements)
+                    {
+                        if (clickedElements.Contains(offerElement)) continue;
 
-                    Thread.Sleep(2000);
+                        ScrollToElement(driver, offerElement);
 
-                    // Наводим курсор на элемент
-                    Actions actions = new Actions(driver);
-                    actions.MoveToElement(offerElement).Perform();
+                        Thread.Sleep(2000);
 
-
-                    // Получаем элемент с жалобой и делаем его Display Block (если требуется)
-                    IWebElement complainElement = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
-                    // Устанавливаем значение CSS-свойства "display" в "block"
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complainElement);
+                        // Наводим курсор на элемент
+                        Actions actions = new Actions(driver);
+                        actions.MoveToElement(offerElement).Perform();
 
 
-                    complainElement.Click();
+                        try
+                        {
+                            // Получаем элемент с жалобой и делаем его Display Block (если требуется)
+                            IWebElement complainElement = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
+                            // Устанавливаем значение CSS-свойства "display" в "block"
+                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complainElement);
+                            complainElement.Click();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Что то пошло не так с получением кнопки для жалобы {ex.Message}");
+                        }
 
-                    SendComplaint(driver);
+                        if (SendComplaint(driver)) { clickedElements.Add(offerElement); }
 
-                    // Дополнительная логика для работы с элементом с жалобой
-                    // ...
+                        Thread.Sleep(2000);
+                    }
+                }
+                catch (Exception)
+                {
+                    driver.Navigate().Refresh();
 
-                    // Возвращаемся на предыдущую страницу
-                    //driver.Navigate().Back();
-
-                    // Ожидаем загрузки страницы
-                    Thread.Sleep(2000);
+                    ProcessAllOffers(driver);
                 }
 
-                // Переходим на следующую страницу пагинации (если есть)
-                IWebElement nextPageElement = paginationElement.FindElements(By.TagName("li"))[page];
-                nextPageElement.Click();
+                try
+                {
+                    // Переходим на следующую страницу пагинации (если есть)
+                    nextPageElement = paginationElement.FindElements(By.TagName("li"))[page];
+                    nextPageElement.Click();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Что то пошло не так с получением страницы пагинации {ex.Message}");
+                }
 
                 // Ожидаем загрузки новой страницы
                 Thread.Sleep(2000);
             }
         }
 
-
-        private static void SendComplaint(IWebDriver driver)
+        // Отправка жалобы
+        private static bool SendComplaint(IWebDriver driver)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            IReadOnlyCollection<IWebElement> complaintItems = null;
+            IWebElement randomComplaintItem = null;
+            IWebElement complaintForm = null;
+            IWebElement sendComplaintButton = null;
+
+
             // Ожидаем полной загрузки страницы
-            Thread.Sleep(2000);
+            Thread.Sleep(5000);
 
-            // Получаем все элементы ComplaintItem
-            var complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
-
-            // class="_93444fe79c--cont--hujVM"
-            // Получаем количество элементов ComplaintItem
-            int complaintItemCount = complaintItems.Count;
-
-            // Если есть хотя бы один элемент ComplaintItem
-            if (complaintItemCount > 0)
+            while (true)
             {
+                try
+                {
+                    // Получаем все элементы ComplaintItem
+                    complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Что то пошло не так с получением варианта жалобы {ex.Message}");
+                }
+
+                // Получаем количество элементов ComplaintItem
+                int complaintItemCount = complaintItems.Count;
+
+                // Если нет элементов ComplaintItem, выходим из цикла
+                if (complaintItemCount == 0)
+                {
+                    break;
+                }
+
+
                 // Генерируем случайное число от 0 до complaintItemCount - 1
                 Random random = new();
                 int randomIndex = random.Next(0, complaintItemCount);
 
-                // Выбираем случайный элемент ComplaintItem и кликаем на него
-                IWebElement randomComplaintItem = complaintItems.ElementAt(randomIndex);
-                randomComplaintItem.Click();
-
-                // Ожидаем полной загрузки страницы                
-                wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
-                // Переопределяем элемент окна с жалобой после обновления контента
-                complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
-
-                // Получаем количество обновленных элементов ComplaintItem
-                int updatedComplaintItemCount = complaintItems.Count;
-
-                // Если есть хотя бы один обновленный элемент ComplaintItem
-                if (updatedComplaintItemCount > 0)
+                try
                 {
-                    // Генерируем новое случайное число от 0 до updatedComplaintItemCount - 1
-                    int newRandomIndex = random.Next(0, updatedComplaintItemCount);
+                    // Выбираем случайный элемент ComplaintItem
+                    randomComplaintItem = complaintItems.ElementAt(randomIndex);
+                    // Делаем элемент видимым, установив свойство display в block
+                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", randomComplaintItem);
+                    // Кликаем на элемент
+                    randomComplaintItem.Click();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Что то пошло не так с кликом на рандомную причину жалобы {ex.Message}");
+                }
 
-                    // Выбираем новый случайный элемент ComplaintItem и кликаем на него
-                    IWebElement newRandomComplaintItem = complaintItems.ElementAt(newRandomIndex);
-                    newRandomComplaintItem.Click();
-
+                try
+                {
                     // Ожидаем полной загрузки страницы
                     Thread.Sleep(2000);
                     // Находим форму ComplaintItemForm
-                    IWebElement complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm']"));
-
+                    complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm']"));
                     // Находим кнопку отправки внутри формы
-                    IWebElement sendComplaintButton = complaintForm.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
-
+                    sendComplaintButton = complaintForm.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
                     // Выполняем клик на кнопке отправки
                     sendComplaintButton.Click();
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Что то пошло не так с отправкой жалобы {ex.Message}");
+                    //return false;
+                }
+
+                // Ожидаем полной загрузки страницы
+                Thread.Sleep(7000);
+            }
+
+            // Ожидаем полной загрузки страницы
+            Thread.Sleep(5000);
+
+            // Вставляю рандомную почту
+            try
+            {
+                // Находим элемент <input> по атрибуту name
+                IWebElement emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
+                EnterRandomEmail(emailInput);
+            }
+            catch (Exception ex) { }
+
+
+            // Закрываем Popup
+            Actions actions = new Actions(driver);
+            actions.SendKeys(Keys.Escape).Perform();
+
+            try
+            {
+                // Проверяем наличие элемента
+                IWebElement closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
+
+                // Если элемент найден, кликаем на него
+                closeButton.Click();
+            }
+            catch (NoSuchElementException)
+            {
+                // Элемент не найден, продолжаем выполнение программы
+            }
+
+
+            // Ожидаем полной загрузки страницы
+            Thread.Sleep(5000);
+            return true;
+        }
+
+        // Метод для вставки рандомной почты в поле после отправки жалобы
+        private static void EnterRandomEmail(IWebElement emailInput)
+        {
+            // Список случайных почт
+            List<string> emailList = new List<string>()
+            {
+                "john.doe@gmail.com",
+                "emma.johnson@yahoo.com"
+            };
+
+
+            // Генерируем случайный индекс для выбора адреса электронной почты из списка
+            Random random = new Random();
+            int randomIndex = random.Next(0, emailList.Count);
+            string randomEmail = emailList[randomIndex];
+
+            // Очищаем поле ввода перед вставкой нового адреса
+            emailInput.Clear();
+
+            // Вводим адрес электронной почты по одной букве
+            foreach (char letter in randomEmail)
+            {
+                emailInput.SendKeys(letter.ToString());
+                Thread.Sleep(random.Next(100, 300));  // Добавляем небольшую паузу между вводом каждой буквы
             }
         }
+
 
 
         // Переключаюсь на новую вкладку
