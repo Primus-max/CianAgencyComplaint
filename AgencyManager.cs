@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using AngleSharp.Dom;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System.Net.Http.Headers;
@@ -8,6 +9,8 @@ namespace CianAgencyComplaint
 {
     public class AgencyManager
     {
+        public static List<string> phoneNumbers = new List<string>();
+        public static string? curPhoneNumber;
 
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
@@ -26,6 +29,10 @@ namespace CianAgencyComplaint
             AcceptCookies(_driver);
             // Получаем общее количество страниц
             int totalPages = GetTotalPages(_driver);
+
+            // Авторизация
+            AuthorizationHelper authHelper = new AuthorizationHelper();
+            authHelper.Login(_driver);
 
             for (int currentPage = 1; currentPage <= totalPages; currentPage++)
             {
@@ -93,77 +100,96 @@ namespace CianAgencyComplaint
             IReadOnlyCollection<IWebElement> offerElements = null;
 
             // Блок на случай если пагинации нет, скорее всего одня страница
-            try
-            {
-                // Находим элемент с пагинацией
-                paginationElement = driver.FindElement(By.CssSelector("ul._93444fe79c--pages-list--gsEUE"));
-                // Находим последний элемент пагинации и получаем текст
-                lastPageElement = paginationElement.FindElements(By.TagName("li")).Last();
-                lastPageText = lastPageElement.Text;
-                // Парсим текст в число, чтобы получить максимальное количество страниц
-                maxPage = int.Parse(lastPageText);
-            }
-            catch (Exception)
-            {
-                maxPage = 1;
-            }
+            //try
+            //{
+            //    // Находим элемент с пагинацией
+            //    paginationElement = driver.FindElement(By.CssSelector("ul._93444fe79c--pages-list--gsEUE"));
+            //    // Находим последний элемент пагинации и получаем текст
+            //    lastPageElement = paginationElement.FindElements(By.TagName("li")).Last();
+            //    lastPageText = lastPageElement.Text;
+            //    // Парсим текст в число, чтобы получить максимальное количество страниц
+            //    maxPage = int.Parse(lastPageText);
+            //}
+            //catch (Exception)
+            //{
+            //    maxPage = 1;
+            //}
 
             // Цикл для прохода по всем страницам
-            for (int page = 1; page <= maxPage; page++)
+            while (true)
             {
+
                 try
                 {
                     // Получаем элементы с предложениями на текущей странице
                     offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
-
-                    // Проходим по каждому элементу и кликаем на него
-                    foreach (IWebElement offerElement in offerElements)
-                    {
-                        if (clickedElements.Contains(offerElement)) continue;
-
-                        ScrollToElement(driver, offerElement);
-
-                        Thread.Sleep(2000);
-
-                        // Наводим курсор на элемент
-                        Actions actions = new Actions(driver);
-                        actions.MoveToElement(offerElement).Perform();
-
-
-                        try
-                        {
-                            // Получаем элемент с жалобой и делаем его Display Block (если требуется)
-                            IWebElement complainElement = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
-                            // Устанавливаем значение CSS-свойства "display" в "block"
-                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complainElement);
-                            complainElement.Click();
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Что то пошло не так с получением кнопки для жалобы {ex.Message}");
-                        }
-
-                        if (SendComplaint(driver)) { clickedElements.Add(offerElement); }
-
-                        Thread.Sleep(2000);
-                    }
-                }
-                catch (Exception)
-                {
-                    driver.Navigate().Refresh();
-
-                    ProcessAllOffers(driver);
-                }
-
-                try
-                {
-                    // Переходим на следующую страницу пагинации (если есть)
-                    nextPageElement = paginationElement.FindElements(By.TagName("li"))[page];
-                    nextPageElement.Click();
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Что то пошло не так с получением страницы пагинации {ex.Message}");
+                    Console.WriteLine($"Что то пошло не так с получением элементов {ex.Message}");
+                }
+
+                // Проходим по каждому элементу и кликаем на него
+                foreach (IWebElement offerElement in offerElements)
+                {
+                    //curPhoneNumber = string.Empty;
+
+                    curPhoneNumber = GetPhoneNumber(offerElement, driver);
+
+                    if (phoneNumbers.Contains(curPhoneNumber))
+                    {
+                        continue;
+                    }
+
+                    ScrollToElement(driver, offerElement);
+
+                    Thread.Sleep(2000);
+
+                    // Наводим курсор на элемент
+                    Actions actions = new Actions(driver);
+                    actions.MoveToElement(offerElement).Perform();
+
+                    Thread.Sleep(1000);
+
+                    try
+                    {
+                        IWebElement complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
+                        // Изменяем стиль элемента на "display: block" с использованием JavaScript
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
+
+                        Thread.Sleep(500);
+                        complaintButton.Click();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Что то пошло не так с получением кнопки для жалобы {ex.Message}");
+                    }
+
+                    // Отправляю жалобу
+                    SendComplaint(offerElement, driver);
+
+                    Thread.Sleep(2000);
+                }
+
+
+                try
+                {
+                    IWebElement nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl._93444fe79c--link-button--Pewgf._93444fe79c--M--T3GjF._93444fe79c--button--dh5GL"));
+
+                    // Проверяем, является ли кнопка активной (не disabled)
+                    if (!nextButton.GetAttribute("disabled").Equals("disabled"))
+                    {
+                        // Выполняем клик на кнопке
+                        nextButton.Click();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Не получилось получить кнопку - ДАЛЬШЕ {ex.Message}");
                 }
 
                 // Ожидаем загрузки новой страницы
@@ -172,8 +198,10 @@ namespace CianAgencyComplaint
         }
 
         // Отправка жалобы
-        private static bool SendComplaint(IWebDriver driver)
+        private static void SendComplaint(IWebElement offerElement, IWebDriver driver)
         {
+            ClosePopup(driver);
+
             IReadOnlyCollection<IWebElement> complaintItems = null;
             IWebElement randomComplaintItem = null;
             IWebElement complaintForm = null;
@@ -233,6 +261,13 @@ namespace CianAgencyComplaint
                     sendComplaintButton = complaintForm.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
                     // Выполняем клик на кнопке отправки
                     sendComplaintButton.Click();
+
+                    // При удачной отправке жалобы добавляю телефон
+                    if (!string.IsNullOrEmpty(curPhoneNumber))
+                    {
+                        phoneNumbers.Add(curPhoneNumber);
+                    }
+
                 }
                 catch (Exception ex)
                 {
@@ -260,7 +295,7 @@ namespace CianAgencyComplaint
             // Закрываем Popup
             Actions actions = new Actions(driver);
             actions.SendKeys(Keys.Escape).Perform();
-
+            Thread.Sleep(1000);
             try
             {
                 // Проверяем наличие элемента
@@ -269,7 +304,7 @@ namespace CianAgencyComplaint
                 // Если элемент найден, кликаем на него
                 closeButton.Click();
             }
-            catch (NoSuchElementException)
+            catch (Exception)
             {
                 // Элемент не найден, продолжаем выполнение программы
             }
@@ -277,12 +312,60 @@ namespace CianAgencyComplaint
 
             // Ожидаем полной загрузки страницы
             Thread.Sleep(5000);
-            return true;
+        }
+
+        // Получаю номер телефона 
+        private static string GetPhoneNumber(IWebElement offerElement, IWebDriver driver)
+        {
+            ClosePopup(driver);
+
+            IWebElement phoneValueElement = null;
+            try
+            {
+                // Находим элемент data-mark="PhoneButton"
+                IWebElement phoneButtonElement = offerElement.FindElement(By.CssSelector("[data-mark='PhoneButton']"));
+                // Изменяем стиль элемента на "display: block" с использованием JavaScript
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", phoneButtonElement);
+                // Если атрибут "onclick" отсутствует, выполняем клик на элементе
+                Thread.Sleep(500);
+                phoneButtonElement.Click();
+            }
+            catch (Exception)
+            {
+
+            }
+            // Ожидаем появления элемента data-mark="PhoneValue"
+            Thread.Sleep(1000);
+
+            try
+            {
+                phoneValueElement = offerElement.FindElement(By.CssSelector("[data-mark='PhoneValue']"));
+
+            }
+            catch (Exception)
+            {
+
+            }
+            // Получаем текст внутри элемента
+            string phoneValueText = phoneValueElement.Text;
+
+            // Возвращаем текст
+            return phoneValueText;
+        }
+
+        // Закрываю вплывающие окна
+        private static void ClosePopup(IWebDriver driver)
+        {
+            // Закрываем Popup
+            Actions actions = new(driver);
+            actions.SendKeys(Keys.Escape).Perform();
         }
 
         // Метод для вставки рандомной почты в поле после отправки жалобы
         private static void EnterRandomEmail(IWebElement emailInput)
         {
+
+
             // Список случайных почт
             List<string> emailList = new List<string>()
             {
@@ -307,11 +390,10 @@ namespace CianAgencyComplaint
             }
         }
 
-
-
         // Переключаюсь на новую вкладку
         private static void SwitchToNewTab(IWebDriver driver)
         {
+            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
@@ -327,6 +409,7 @@ namespace CianAgencyComplaint
         // Получаю число страниц которое надо будет обойти при поиске агенства
         private static int GetTotalPages(IWebDriver driver)
         {
+            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
@@ -346,45 +429,34 @@ namespace CianAgencyComplaint
         // Скроллинг
         private static void ScrollToElement(IWebDriver driver, IWebElement element)
         {
+            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+
+            // Получаем размеры окна браузера
+            var windowSize = driver.Manage().Window.Size;
+
+            // Получаем позицию элемента на странице
+            var elementLocation = element.Location;
+
+            // Вычисляем вертикальную позицию для прокрутки, чтобы элемент был посередине экрана
+            var verticalScrollPosition = elementLocation.Y - windowSize.Height / 2;
 
             // Используем JavaScriptExecutor для выполнения скрипта прокрутки
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
 
-            // Выполняем скрипт для прокрутки к элементу с использованием smooth behavior
-            js.ExecuteScript("arguments[0].scrollIntoView({ behavior: 'smooth' });", element);
+            // Выполняем скрипт для прокрутки страницы по вертикали
+            js.ExecuteScript($"window.scrollTo(0, {verticalScrollPosition});");
 
             Thread.Sleep(1000);
         }
 
-        // Возвращаю число объявлений на которые надо будет пожаловаться
-        private static int GetTotalOffers(IWebDriver driver)
-        {
-            // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
-
-            IWebElement paginationElement = driver.FindElement(By.CssSelector("[data-name='Pagination']"));
-
-            // Находим элемент с информацией о количестве предложений
-            IWebElement totalOffersElement = driver.FindElement(By.CssSelector("div[data-name='SummaryHeader'] h5"));
-
-            // Получаем текст элемента
-            string totalOffersText = totalOffersElement.Text;
-
-            // Извлекаем число из текста
-            string numberString = Regex.Match(totalOffersText, @"\d+").Value;
-
-            // Преобразуем число в int и возвращаем
-            int totalOffers = int.Parse(numberString);
-            return totalOffers;
-        }
 
         // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
         {
+            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
@@ -405,6 +477,7 @@ namespace CianAgencyComplaint
         // Кликаю на  - принять куки
         private static void AcceptCookies(IWebDriver driver)
         {
+            ClosePopup(driver);
 
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
