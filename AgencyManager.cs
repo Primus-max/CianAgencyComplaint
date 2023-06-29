@@ -443,11 +443,8 @@ namespace CianAgencyComplaint
         // Скроллинг
         private static void ScrollToElement(IWebDriver driver, IWebElement element)
         {
-            ClosePopup(driver);
-
             // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            WaitForDOMReady(driver);
 
             // Используем JavaScriptExecutor для выполнения скрипта получения позиции элемента
             IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
@@ -510,13 +507,13 @@ namespace CianAgencyComplaint
             }
         }
 
-        private void WaitForDOMReady(IWebDriver driver)
+        private static void WaitForDOMReady(IWebDriver driver)
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
         }
 
-        private void ClickElement(IWebDriver driver, IWebElement element)
+        private static void ClickElement(IWebDriver driver, IWebElement element)
         {
             try
             {
