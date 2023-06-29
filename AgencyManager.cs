@@ -2,8 +2,10 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using System.Drawing;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace CianAgencyComplaint
 {
@@ -23,16 +25,19 @@ namespace CianAgencyComplaint
             _driver.Manage().Window.Maximize();
 
             // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            WaitForDOMReady(_driver);
+
+
+            // Авторизация
+            AuthorizationHelper authHelper = new AuthorizationHelper();
+            authHelper.Login(_driver);
 
             AcceptCookies(_driver);
             // Получаем общее количество страниц
             int totalPages = GetTotalPages(_driver);
 
-            // Авторизация
-            AuthorizationHelper authHelper = new AuthorizationHelper();
-            authHelper.Login(_driver);
+            // Ожидаем полной загрузки страницы
+            WaitForDOMReady(_driver);
 
             for (int currentPage = 1; currentPage <= totalPages; currentPage++)
             {
@@ -41,15 +46,24 @@ namespace CianAgencyComplaint
 
                 foreach (IWebElement agencyCard in agencyCards)
                 {
-                    // Получаем название агентства
-                    IWebElement nameElement = agencyCard.FindElement(By.CssSelector("._9400a595a7--name--HPTnh > span"));
-                    string agencyNameText = nameElement.Text;
+                    IWebElement? nameElement = null;
+                    string? agencyNameText = string.Empty;
+                    try
+                    {
+                        // Получаем название агентства
+                        nameElement = agencyCard.FindElement(By.CssSelector("._9400a595a7--name--HPTnh > span"));
+                        agencyNameText = nameElement.Text;
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
 
                     if (agencyNameText.ToLower() == agencyName.ToLower())
                     {
                         // Плавно прокручиваем к агентству и кликаем
                         ScrollToElement(_driver, agencyCard);
-                        agencyCard.Click();
+                        ClickElement(_driver, agencyCard);
 
 
                         SwitchToNewTab(_driver);
@@ -430,28 +444,30 @@ namespace CianAgencyComplaint
         private static void ScrollToElement(IWebDriver driver, IWebElement element)
         {
             ClosePopup(driver);
+
             // Ожидаем полной загрузки страницы
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
 
+            // Используем JavaScriptExecutor для выполнения скрипта получения позиции элемента
+            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+
+            // Получаем позицию элемента на странице с использованием JavaScript
+            var boundingRect = (Dictionary<string, object>)js.ExecuteScript("return arguments[0].getBoundingClientRect();", element);
+            var elementLocation = new Point(Convert.ToInt32(boundingRect["x"]), Convert.ToInt32(boundingRect["y"]));
+
+
             // Получаем размеры окна браузера
             var windowSize = driver.Manage().Window.Size;
 
-            // Получаем позицию элемента на странице
-            var elementLocation = element.Location;
-
             // Вычисляем вертикальную позицию для прокрутки, чтобы элемент был посередине экрана
             var verticalScrollPosition = elementLocation.Y - windowSize.Height / 2;
-
-            // Используем JavaScriptExecutor для выполнения скрипта прокрутки
-            IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
 
             // Выполняем скрипт для прокрутки страницы по вертикали
             js.ExecuteScript($"window.scrollTo(0, {verticalScrollPosition});");
 
             Thread.Sleep(1000);
         }
-
 
         // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
@@ -493,5 +509,25 @@ namespace CianAgencyComplaint
                 acceptButton.Click();
             }
         }
+
+        private void WaitForDOMReady(IWebDriver driver)
+        {
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+        }
+
+        private void ClickElement(IWebDriver driver, IWebElement element)
+        {
+            try
+            {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", element);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
     }
+
+
 }
