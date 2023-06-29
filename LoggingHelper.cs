@@ -8,8 +8,8 @@ public static class LoggingHelper
     {
         // Создаем конфигурацию для логирования
         var loggerConfiguration = new LoggerConfiguration()
-            .WriteTo.File("logs/info.log", restrictedToMinimumLevel: LogEventLevel.Information)  // Файл для записи простой информации
-            .WriteTo.File("logs/error.log", restrictedToMinimumLevel: LogEventLevel.Error);  // Файл для записи ошибок
+            .WriteTo.File("logs/info.txt", restrictedToMinimumLevel: LogEventLevel.Information)  // Файл для записи простой информации
+            .WriteTo.File("logs/error.txt", restrictedToMinimumLevel: LogEventLevel.Error);  // Файл для записи ошибок
 
         // Создаем логгер
         var logger = loggerConfiguration.CreateLogger();

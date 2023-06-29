@@ -1,6 +1,8 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
+using Serilog;
+using Serilog.Core;
 using System.Drawing;
 
 namespace CianAgencyComplaint
@@ -9,12 +11,13 @@ namespace CianAgencyComplaint
     {
         public static List<string> phoneNumbers = new List<string>();
         public static string? curPhoneNumber;
+        public static ILogger? logger = null;
 
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
         {
             // Инициализация логера
-            var logger = LoggingHelper.ConfigureLogger();
+            logger = LoggingHelper.ConfigureLogger();
 
             // Получаем driver
             IWebDriver _driver = WebDriverFactory.GetDriver();
@@ -42,32 +45,58 @@ namespace CianAgencyComplaint
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(_driver);
 
+            EnterTextAndSubmit(_driver, agencyName);
+
+
             for (int currentPage = 1; currentPage <= totalPages; currentPage++)
             {
-                // Получаем список агентств на текущей странице
-                List<IWebElement> agencyCards = _driver.FindElements(By.CssSelector("[data-name='AgencyCard']")).ToList();
+                List<IWebElement>? agencyCards = null;
+                try
+                {
+                    // Получаем список агентств на текущей странице
+                    agencyCards = _driver.FindElements(By.CssSelector("[data-name='AgencyCard']")).ToList();
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex, "Ошибка в получении названия агенства: {ErrorMessage}", ex.Message);
+                }
 
                 foreach (IWebElement agencyCard in agencyCards)
                 {
+                    IWebElement foundedCard = agencyCard as IWebElement;
                     IWebElement? nameElement = null;
                     string? agencyNameText = string.Empty;
                     try
                     {
                         // Получаем название агентства
-                        nameElement = agencyCard.FindElement(By.CssSelector("._9400a595a7--name--HPTnh > span"));
+                        nameElement = foundedCard.FindElement(By.CssSelector("._9400a595a7--name--HPTnh > span"));
                         agencyNameText = nameElement.Text;
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex);
+                        logger.Error(ex, "Ошибка в получении названия агенства: {ErrorMessage}", ex.Message);
                     }
 
                     if (agencyNameText.ToLower() == agencyName.ToLower())
                     {
-                        // Плавно прокручиваем к агентству и кликаем
-                        ScrollToElement(_driver, agencyCard);
-                        ClickElement(_driver, agencyCard);
+                        // Находим элемент agencyCard в списке agencyCards по индексу
+                        int index = agencyCards.IndexOf(agencyCard);
+                        if (index != -1)
+                        {
+                            // Обновляю ссылку на элемент agencyCard
+                            foundedCard = agencyCards[index];
+                        }
 
+                        // Плавно прокручиваем к агентству и кликаем
+                        ScrollToElement(_driver, foundedCard);
+
+                        //WaitForDOMReady(_driver);
+
+                        //foundedCard.Click();
+
+                        ClickElement(_driver, foundedCard);
+
+                        Thread.Sleep(3000);
 
                         SwitchToNewTab(_driver);
 
@@ -97,6 +126,18 @@ namespace CianAgencyComplaint
         }
 
 
+        public void EnterTextAndSubmit(IWebDriver driver, string agencyName)
+        {
+            // Находим элемент по указанным атрибутам
+            IWebElement inputElement = driver.FindElement(By.CssSelector("input[data-testid='search_text_input']"));
+
+            // Очищаем поле ввода и вводим текст
+            ClearAndEnterText(inputElement, agencyName);
+
+            // Выполняем нажатие клавиши Enter или отправку формы
+            inputElement.SendKeys(Keys.Enter); // Или inputElement.Submit();
+        }
+
         // Получаю и нажимаю на кнопку - Пожаловаться
         private static void ProcessAllOffers(IWebDriver driver)
         {
@@ -112,23 +153,6 @@ namespace CianAgencyComplaint
 
             IReadOnlyCollection<IWebElement> offerElements = null;
 
-            // Блок на случай если пагинации нет, скорее всего одня страница
-            //try
-            //{
-            //    // Находим элемент с пагинацией
-            //    paginationElement = driver.FindElement(By.CssSelector("ul._93444fe79c--pages-list--gsEUE"));
-            //    // Находим последний элемент пагинации и получаем текст
-            //    lastPageElement = paginationElement.FindElements(By.TagName("li")).Last();
-            //    lastPageText = lastPageElement.Text;
-            //    // Парсим текст в число, чтобы получить максимальное количество страниц
-            //    maxPage = int.Parse(lastPageText);
-            //}
-            //catch (Exception)
-            //{
-            //    maxPage = 1;
-            //}
-
-            // Цикл для прохода по всем страницам
             while (true)
             {
 
@@ -139,7 +163,7 @@ namespace CianAgencyComplaint
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Что то пошло не так с получением элементов {ex.Message}");
+                    logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
                 }
 
                 // Проходим по каждому элементу и кликаем на него
@@ -175,7 +199,7 @@ namespace CianAgencyComplaint
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Что то пошло не так с получением кнопки для жалобы {ex.Message}");
+                        logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
                     }
 
                     // Отправляю жалобу
@@ -202,7 +226,7 @@ namespace CianAgencyComplaint
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Не получилось получить кнопку - ДАЛЬШЕ {ex.Message}");
+                    logger?.Error(ex, "Ошибка в получении кнопки - ДАЛЬШЕ: {ErrorMessage}", ex.Message);
                 }
 
                 // Ожидаем загрузки новой страницы
@@ -231,7 +255,7 @@ namespace CianAgencyComplaint
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Что то пошло не так с получением варианта жалобы {ex.Message}");
+                    logger?.Error(ex, "Ошибка в получении ComplaintItem: {ErrorMessage}", ex.Message);
                 }
 
                 // Получаем количество элементов ComplaintItem
@@ -263,7 +287,7 @@ namespace CianAgencyComplaint
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Что то пошло не так с кликом на рандомную причину жалобы {ex.Message}");
+                    logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
 
                 try
@@ -281,13 +305,13 @@ namespace CianAgencyComplaint
                     if (!string.IsNullOrEmpty(curPhoneNumber))
                     {
                         phoneNumbers.Add(curPhoneNumber);
+                        logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber}");
                     }
 
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Что то пошло не так с отправкой жалобы {ex.Message}");
-                    //return false;
+                    logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
 
                 // Ожидаем полной загрузки страницы
@@ -304,7 +328,10 @@ namespace CianAgencyComplaint
                 IWebElement? emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
                 EnterRandomEmail(emailInput);
             }
-            catch (Exception ex) { }
+            catch (Exception ex)
+            {
+                logger?.Error(ex, "Не удалось отправить вставить email: {ErrorMessage}", ex.Message);
+            }
 
 
             // Закрываем Popup
@@ -319,10 +346,7 @@ namespace CianAgencyComplaint
                 // Если элемент найден, кликаем на него
                 ClickElement(driver, closeButton);
             }
-            catch (Exception)
-            {
-                // Элемент не найден, продолжаем выполнение программы
-            }
+            catch (Exception) { }
 
 
             // Ожидаем полной загрузки страницы
@@ -424,17 +448,35 @@ namespace CianAgencyComplaint
         // Получаю число страниц которое надо будет обойти при поиске агенства
         private static int GetTotalPages(IWebDriver driver)
         {
+            IWebElement? pagesElement = null;
+            IWebElement? lastPageElement = null;
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
 
             //Если всплыли окна, закрываю
             ClosePopup(driver);
 
-            // Находим последний элемент списка страниц
-            IWebElement? pagesElement = driver.FindElement(By.CssSelector("._9400a595a7--items--F8vxh > div:last-child"));
+            try
+            {
+                // Находим последний элемент списка страниц
+                pagesElement = driver.FindElement(By.CssSelector("._9400a595a7--items--F8vxh > div:last-child"));
+            }
+            catch (Exception ex)
+            {
+                logger?.Error(ex, "Не удалось получить последний элемент в списке страниц: {ErrorMessage}", ex.Message);
+            }
 
-            // Получаем элемент <span> с номером последней страницы
-            IWebElement? lastPageElement = pagesElement.FindElement(By.TagName("span"));
+            try
+            {
+                // Получаем элемент <span> с номером последней страницы
+                lastPageElement = pagesElement.FindElement(By.TagName("span"));
+            }
+            catch (Exception ex)
+            {
+                logger?.Error(ex, "Не удалось получить цифру с номером последней страници: {ErrorMessage}", ex.Message);
+            }
+
+
 
             // Получаем текст из элемента <span> и преобразуем его в число
             int totalPages = int.Parse(lastPageElement.Text);
@@ -482,17 +524,18 @@ namespace CianAgencyComplaint
             {
                 // Находим ссылку "Смотреть все предложения"
                 viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
+                // Прокручиваем страницу к ссылке
+                ScrollToElement(driver, viewAllOffersLink);
+
+                // Кликаем на ссылку
+                ClickElement(driver, viewAllOffersLink);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger?.Error(ex, "Не удалось получить или кликнуть на элемент - Смотреть все предложения: {ErrorMessage}", ex.Message);
             }
 
-            // Прокручиваем страницу к ссылке
-            ScrollToElement(driver, viewAllOffersLink);
 
-            // Кликаем на ссылку
-            ClickElement(driver, viewAllOffersLink);
         }
 
         // Кликаю на  - принять куки
@@ -513,21 +556,19 @@ namespace CianAgencyComplaint
                 // Кликаем на кнопку "Принять куки"
                 ClickElement(driver, acceptButton);
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+            catch (Exception) { }
         }
 
         private static void WaitForDOMReady(IWebDriver driver)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
         }
 
         private static void ClickElement(IWebDriver driver, IWebElement element)
         {
-            Thread.Sleep(1000);
+            WaitForDOMReady(driver);
+            //Thread.Sleep(3000);
             try
             {
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", element);
@@ -536,10 +577,9 @@ namespace CianAgencyComplaint
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                logger?.Error(ex, "Не удалось кликнуть на элементе: {ErrorMessage}", ex.Message);
             }
         }
-
 
         private static void ClearAndEnterText(IWebElement element, string text)
         {

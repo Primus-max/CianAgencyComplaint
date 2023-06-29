@@ -24,3 +24,5 @@ C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\CianAgencyCompla
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\CianAgencyComplaint.genruntimeconfig.cache
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\ref\CianAgencyComplaint.dll
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\auth.json
+C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\Serilog.dll
+C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\Serilog.Sinks.File.dll
