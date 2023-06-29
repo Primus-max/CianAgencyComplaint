@@ -469,23 +469,28 @@ namespace CianAgencyComplaint
         // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
         {
+            IWebElement? viewAllOffersLink = null;
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
 
             //Если всплыли окна, закрываю
             ClosePopup(driver);
 
-            IWebElement viewAllOffdfdfrsLink = driver.FindElement(By.CssSelector(".serp-list"));
-
-
-            // Находим ссылку "Смотреть все предложения"
-            IWebElement viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
+            try
+            {
+                // Находим ссылку "Смотреть все предложения"
+                viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
             // Прокручиваем страницу к ссылке
             ScrollToElement(driver, viewAllOffersLink);
 
             // Кликаем на ссылку
-            viewAllOffersLink.Click();
+            ClickElement(driver, viewAllOffersLink);
         }
 
         // Кликаю на  - принять куки
@@ -502,18 +507,13 @@ namespace CianAgencyComplaint
             {
                 // Ищем элемент кнопки "Принять куки"
                 acceptButton = driver.FindElement(By.CssSelector("button._25d45facb5--button--KVooB._25d45facb5--button--gs5R_._25d45facb5--M--I5Xj6._25d45facb5--button--DsA7r > span._25d45facb5--text--V2xLI"));
+
+                // Кликаем на кнопку "Принять куки"
+                ClickElement(driver, acceptButton);
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-            }
-
-
-            // Проверяем наличие кнопки "Принять куки"
-            if (acceptButton != null)
-            {
-                // Кликаем на кнопку "Принять куки"
-                ClickElement(driver, acceptButton);
             }
         }
 
