@@ -378,8 +378,6 @@ namespace CianAgencyComplaint
         // Метод для вставки рандомной почты в поле после отправки жалобы
         private static void EnterRandomEmail(IWebElement emailInput)
         {
-
-
             // Список случайных почт
             List<string> emailList = new List<string>()
             {
@@ -407,10 +405,11 @@ namespace CianAgencyComplaint
         // Переключаюсь на новую вкладку
         private static void SwitchToNewTab(IWebDriver driver)
         {
-            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            WaitForDOMReady(driver);
+
+            //Если всплыли окна, закрываю
+            ClosePopup(driver);
 
             // Получаем все открытые вкладки
             IReadOnlyCollection<string> windowHandles = driver.WindowHandles;
@@ -423,10 +422,11 @@ namespace CianAgencyComplaint
         // Получаю число страниц которое надо будет обойти при поиске агенства
         private static int GetTotalPages(IWebDriver driver)
         {
-            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            WaitForDOMReady(driver);
+
+            //Если всплыли окна, закрываю
+            ClosePopup(driver);
 
             // Находим последний элемент списка страниц
             IWebElement pagesElement = driver.FindElement(By.CssSelector("._9400a595a7--items--F8vxh > div:last-child"));
@@ -469,10 +469,11 @@ namespace CianAgencyComplaint
         // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
         {
-            ClosePopup(driver);
             // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            WaitForDOMReady(driver);
+
+            //Если всплыли окна, закрываю
+            ClosePopup(driver);
 
             IWebElement viewAllOffdfdfrsLink = driver.FindElement(By.CssSelector(".serp-list"));
 
@@ -490,20 +491,29 @@ namespace CianAgencyComplaint
         // Кликаю на  - принять куки
         private static void AcceptCookies(IWebDriver driver)
         {
+            IWebElement? acceptButton = null;
+            // Ожидаем полной загрузки страницы
+            WaitForDOMReady(driver);
+
+            //Если всплыли окна, закрываю
             ClosePopup(driver);
 
-            // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            try
+            {
+                // Ищем элемент кнопки "Принять куки"
+                acceptButton = driver.FindElement(By.CssSelector("button._25d45facb5--button--KVooB._25d45facb5--button--gs5R_._25d45facb5--M--I5Xj6._25d45facb5--button--DsA7r > span._25d45facb5--text--V2xLI"));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
 
-            // Ищем элемент кнопки "Принять куки"
-            IWebElement acceptButton = driver.FindElement(By.CssSelector("button._25d45facb5--button--KVooB._25d45facb5--button--gs5R_._25d45facb5--M--I5Xj6._25d45facb5--button--DsA7r > span._25d45facb5--text--V2xLI"));
 
             // Проверяем наличие кнопки "Принять куки"
             if (acceptButton != null)
             {
                 // Кликаем на кнопку "Принять куки"
-                acceptButton.Click();
+                ClickElement(driver, acceptButton);
             }
         }
 
