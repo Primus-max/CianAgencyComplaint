@@ -39,103 +39,72 @@ namespace CianAgencyComplaint
             authHelper.Login(_driver);
 
             AcceptCookies(_driver);
-            // Получаем общее количество страниц
-            int totalPages = GetTotalPages(_driver);
 
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(_driver);
 
-            EnterTextAndSubmit(_driver, agencyName);
+            // Получаю и переключась на агенство
+            FindAgencyByName(_driver, agencyName);
 
-
-            for (int currentPage = 1; currentPage <= totalPages; currentPage++)
+            IWebElement? agencyCard = null;
+            try
             {
-                List<IWebElement>? agencyCards = null;
-                try
-                {
-                    // Получаем список агентств на текущей странице
-                    agencyCards = _driver.FindElements(By.CssSelector("[data-name='AgencyCard']")).ToList();
-                }
-                catch (Exception ex)
-                {
-                    logger.Error(ex, "Ошибка в получении названия агенства: {ErrorMessage}", ex.Message);
-                }
-
-                foreach (IWebElement agencyCard in agencyCards)
-                {
-                    IWebElement foundedCard = agencyCard as IWebElement;
-                    IWebElement? nameElement = null;
-                    string? agencyNameText = string.Empty;
-                    try
-                    {
-                        // Получаем название агентства
-                        nameElement = foundedCard.FindElement(By.CssSelector("._9400a595a7--name--HPTnh > span"));
-                        agencyNameText = nameElement.Text;
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex, "Ошибка в получении названия агенства: {ErrorMessage}", ex.Message);
-                    }
-
-                    if (agencyNameText.ToLower() == agencyName.ToLower())
-                    {
-                        // Находим элемент agencyCard в списке agencyCards по индексу
-                        int index = agencyCards.IndexOf(agencyCard);
-                        if (index != -1)
-                        {
-                            // Обновляю ссылку на элемент agencyCard
-                            foundedCard = agencyCards[index];
-                        }
-
-                        // Плавно прокручиваем к агентству и кликаем
-                        ScrollToElement(_driver, foundedCard);
-
-                        //WaitForDOMReady(_driver);
-
-                        //foundedCard.Click();
-
-                        ClickElement(_driver, foundedCard);
-
-                        Thread.Sleep(3000);
-
-                        SwitchToNewTab(_driver);
-
-                        ClickViewAllOffersLink(_driver);
-
-                        SwitchToNewTab(_driver);
-
-                        ProcessAllOffers(_driver);
-
-                        return;
-                    }
-                }
-
-                if (currentPage < totalPages)
-                {
-                    // Прокручиваем к следующей странице и кликаем
-                    IWebElement? paginationNext = _driver.FindElement(By.CssSelector("[data-testid='pagination-next']"));
-                    ScrollToElement(_driver, paginationNext);
-                    paginationNext.Click();
-
-                    // Ожидаем, чтобы страница загрузилась полностью перед продолжением работы
-                    Thread.Sleep(2000); // Можно настроить время ожидания по необходимости
-                }
+                // Получаю список агентств на текущей странице
+                agencyCard = _driver.FindElement(By.CssSelector("[data-name='AgencyCard']"));
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "Ошибка в получении названия агенства: {ErrorMessage}", ex.Message);
             }
 
-            // Если агентство не было найдено на всех страницах, можно добавить соответствующую обработку
+
+            // Плавно прокручиваем к агентству и кликаем
+            ScrollToElement(_driver, agencyCard);
+
+            //WaitForDOMReady(_driver);
+
+            //foundedCard.Click();
+
+            ClickElement(_driver, agencyCard);
+
+            Thread.Sleep(3000);
+
+            SwitchToNewTab(_driver);
+
+            ClickViewAllOffersLink(_driver);
+
+            SwitchToNewTab(_driver);
+
+            ProcessAllOffers(_driver);
         }
 
-
-        public void EnterTextAndSubmit(IWebDriver driver, string agencyName)
+        // Метод поиска по названию агенства
+        public static void FindAgencyByName(IWebDriver driver, string agencyName)
         {
-            // Находим элемент по указанным атрибутам
-            IWebElement inputElement = driver.FindElement(By.CssSelector("input[data-testid='search_text_input']"));
+            IWebElement? inputElement = null;
+
+            try
+            {
+                // Находим элемент по указанным атрибутам
+                inputElement = driver.FindElement(By.CssSelector("input[data-testid='search_text_input']"));
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Не удалось получить поле для ввода названия агенства: {ex.Message} ");
+            }
 
             // Очищаем поле ввода и вводим текст
             ClearAndEnterText(inputElement, agencyName);
 
-            // Выполняем нажатие клавиши Enter или отправку формы
-            inputElement.SendKeys(Keys.Enter); // Или inputElement.Submit();
+            try
+            {
+                // Выполняем нажатие клавиши Enter или отправку формы
+                inputElement.SendKeys(Keys.Enter); // Или inputElement.Submit();
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Не удалось ввести название агенства: {ex.Message} ");
+            }
         }
 
         // Получаю и нажимаю на кнопку - Пожаловаться

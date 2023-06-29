@@ -909,3 +909,18 @@ OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate elemen
 2023-06-30 06:59:39.738 +08:00 [INF] Жалоба отправлена на номер: +7 913 881-01-15
 2023-06-30 06:59:49.324 +08:00 [INF] Жалоба отправлена на номер: +7 913 881-01-15
 2023-06-30 06:59:58.983 +08:00 [INF] Жалоба отправлена на номер: +7 913 881-01-15
+2023-06-30 07:25:04.830 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaint(IWebDriver driver) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 251
+2023-06-30 07:25:14.492 +08:00 [INF] Жалоба отправлена на номер: +7 913 851-42-84
+2023-06-30 07:25:24.103 +08:00 [INF] Жалоба отправлена на номер: +7 913 851-42-84
+2023-06-30 07:25:33.646 +08:00 [INF] Жалоба отправлена на номер: +7 913 851-42-84
+2023-06-30 07:25:43.220 +08:00 [INF] Жалоба отправлена на номер: +7 913 851-42-84
