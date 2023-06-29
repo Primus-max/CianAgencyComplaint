@@ -568,8 +568,9 @@ namespace CianAgencyComplaint
                     element.SendKeys(letter.ToString());
                 }
 
-                Thread.Sleep(random.Next(100, 300));  // Добавляем небольшую паузу между вводом каждого символа
+                Thread.Sleep(random.Next(100, 500));  // Добавляем небольшую паузу между вводом каждого символа
             }
+            Thread.Sleep(random.Next(500, 1200));
         }
 
     }
