@@ -1,11 +1,7 @@
-﻿using AngleSharp.Dom;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System.Drawing;
-using System.Net.Http.Headers;
-using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace CianAgencyComplaint
 {
@@ -17,6 +13,9 @@ namespace CianAgencyComplaint
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
         {
+            // Инициализация логера
+            var logger = LoggingHelper.ConfigureLogger();
+
             // Получаем driver
             IWebDriver _driver = WebDriverFactory.GetDriver();
 
@@ -27,6 +26,10 @@ namespace CianAgencyComplaint
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(_driver);
 
+            //Принимаю куки
+            AcceptCookies(_driver);
+
+            Thread.Sleep(300);
 
             // Авторизация
             AuthorizationHelper authHelper = new AuthorizationHelper();
@@ -72,10 +75,7 @@ namespace CianAgencyComplaint
 
                         SwitchToNewTab(_driver);
 
-                        //int totalCountForComplaint = GetTotalOffers(_driver);
-
                         ProcessAllOffers(_driver);
-
 
                         return;
                     }
@@ -84,7 +84,7 @@ namespace CianAgencyComplaint
                 if (currentPage < totalPages)
                 {
                     // Прокручиваем к следующей странице и кликаем
-                    IWebElement paginationNext = _driver.FindElement(By.CssSelector("[data-testid='pagination-next']"));
+                    IWebElement? paginationNext = _driver.FindElement(By.CssSelector("[data-testid='pagination-next']"));
                     ScrollToElement(_driver, paginationNext);
                     paginationNext.Click();
 
@@ -101,14 +101,13 @@ namespace CianAgencyComplaint
         private static void ProcessAllOffers(IWebDriver driver)
         {
             // Ожидаем полной загрузки страницы
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            WaitForDOMReady(driver);
 
-            HashSet<IWebElement> clickedElements = new HashSet<IWebElement>();
-            IWebElement paginationElement = null;
-            IWebElement lastPageElement;
-            IWebElement nextPageElement = null;
-            string lastPageText;
+            HashSet<IWebElement>? clickedElements = new HashSet<IWebElement>();
+            IWebElement? paginationElement = null;
+            IWebElement? lastPageElement;
+            IWebElement? nextPageElement = null;
+            string? lastPageText;
             int maxPage;
 
             IReadOnlyCollection<IWebElement> offerElements = null;
@@ -167,7 +166,7 @@ namespace CianAgencyComplaint
 
                     try
                     {
-                        IWebElement complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
+                        IWebElement? complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
                         // Изменяем стиль элемента на "display: block" с использованием JavaScript
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
 
@@ -180,7 +179,7 @@ namespace CianAgencyComplaint
                     }
 
                     // Отправляю жалобу
-                    SendComplaint(offerElement, driver);
+                    SendComplaint(driver);
 
                     Thread.Sleep(2000);
                 }
@@ -188,7 +187,7 @@ namespace CianAgencyComplaint
 
                 try
                 {
-                    IWebElement nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl._93444fe79c--link-button--Pewgf._93444fe79c--M--T3GjF._93444fe79c--button--dh5GL"));
+                    IWebElement? nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl._93444fe79c--link-button--Pewgf._93444fe79c--M--T3GjF._93444fe79c--button--dh5GL"));
 
                     // Проверяем, является ли кнопка активной (не disabled)
                     if (!nextButton.GetAttribute("disabled").Equals("disabled"))
@@ -212,14 +211,12 @@ namespace CianAgencyComplaint
         }
 
         // Отправка жалобы
-        private static void SendComplaint(IWebElement offerElement, IWebDriver driver)
+        private static void SendComplaint(IWebDriver driver)
         {
-            ClosePopup(driver);
-
             IReadOnlyCollection<IWebElement> complaintItems = null;
-            IWebElement randomComplaintItem = null;
-            IWebElement complaintForm = null;
-            IWebElement sendComplaintButton = null;
+            IWebElement? randomComplaintItem = null;
+            IWebElement? complaintForm = null;
+            IWebElement? sendComplaintButton = null;
 
 
             // Ожидаем полной загрузки страницы
@@ -257,8 +254,12 @@ namespace CianAgencyComplaint
                     randomComplaintItem = complaintItems.ElementAt(randomIndex);
                     // Делаем элемент видимым, установив свойство display в block
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", randomComplaintItem);
+
+                    Thread.Sleep(300);
+
                     // Кликаем на элемент
-                    ClickElement(driver, randomComplaintItem);
+                    randomComplaintItem.Click();
+                    // ClickElement(driver, randomComplaintItem);
                 }
                 catch (Exception ex)
                 {
@@ -300,7 +301,7 @@ namespace CianAgencyComplaint
             try
             {
                 // Находим элемент <input> по атрибуту name
-                IWebElement emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
+                IWebElement? emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
                 EnterRandomEmail(emailInput);
             }
             catch (Exception ex) { }
@@ -313,7 +314,7 @@ namespace CianAgencyComplaint
             try
             {
                 // Проверяем наличие элемента
-                IWebElement closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
+                IWebElement? closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
 
                 // Если элемент найден, кликаем на него
                 ClickElement(driver, closeButton);
@@ -333,13 +334,12 @@ namespace CianAgencyComplaint
         {
             ClosePopup(driver);
 
-            IWebElement phoneValueElement = null;
+            IWebElement? phoneValueElement = null;
             try
             {
                 // Находим элемент data-mark="PhoneButton"
-                IWebElement phoneButtonElement = offerElement.FindElement(By.CssSelector("[data-mark='PhoneButton']"));
-                // Изменяем стиль элемента на "display: block" с использованием JavaScript
-                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", phoneButtonElement);
+                IWebElement? phoneButtonElement = offerElement.FindElement(By.CssSelector("[data-mark='PhoneButton']"));
+
                 // Если атрибут "onclick" отсутствует, выполняем клик на элементе
                 Thread.Sleep(500);
                 ClickElement(driver, phoneButtonElement);
@@ -381,8 +381,8 @@ namespace CianAgencyComplaint
             // Список случайных почт
             List<string> emailList = new List<string>()
             {
-                "john.doe@gmail.com",
-                "emma.johnson@yahoo.com"
+                "viktorovaalysa@yandex.ru",
+                "oskris8@yandex.ru"
             };
 
 
@@ -392,7 +392,7 @@ namespace CianAgencyComplaint
             string randomEmail = emailList[randomIndex];
 
             // Очищаем поле ввода перед вставкой нового адреса
-            emailInput.Clear();
+            ClearAndEnterText(emailInput, randomEmail);
 
             // Вводим адрес электронной почты по одной букве
             foreach (char letter in randomEmail)
@@ -431,10 +431,10 @@ namespace CianAgencyComplaint
             ClosePopup(driver);
 
             // Находим последний элемент списка страниц
-            IWebElement pagesElement = driver.FindElement(By.CssSelector("._9400a595a7--items--F8vxh > div:last-child"));
+            IWebElement? pagesElement = driver.FindElement(By.CssSelector("._9400a595a7--items--F8vxh > div:last-child"));
 
             // Получаем элемент <span> с номером последней страницы
-            IWebElement lastPageElement = pagesElement.FindElement(By.TagName("span"));
+            IWebElement? lastPageElement = pagesElement.FindElement(By.TagName("span"));
 
             // Получаем текст из элемента <span> и преобразуем его в число
             int totalPages = int.Parse(lastPageElement.Text);
@@ -530,6 +530,8 @@ namespace CianAgencyComplaint
             Thread.Sleep(1000);
             try
             {
+                ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", element);
+                Thread.Sleep(300);
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", element);
             }
             catch (Exception ex)
@@ -537,6 +539,30 @@ namespace CianAgencyComplaint
                 Console.WriteLine(ex.Message);
             }
         }
+
+
+        private static void ClearAndEnterText(IWebElement element, string text)
+        {
+            Random random = new Random();
+
+            // Вводим текст по одному символу
+            foreach (char letter in text)
+            {
+                if (letter == '\b')
+                {
+                    // Если символ является символом backspace, удаляем последний введенный символ
+                    element.SendKeys(Keys.Backspace);
+                }
+                else
+                {
+                    // Вводим символ
+                    element.SendKeys(letter.ToString());
+                }
+
+                Thread.Sleep(random.Next(100, 300));  // Добавляем небольшую паузу между вводом каждого символа
+            }
+        }
+
     }
 
 
