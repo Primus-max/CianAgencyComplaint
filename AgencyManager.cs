@@ -3,6 +3,7 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog;
 using Serilog.Core;
+using System;
 using System.Drawing;
 
 namespace CianAgencyComplaint
@@ -381,24 +382,18 @@ namespace CianAgencyComplaint
 
             // Генерируем случайный индекс для выбора адреса электронной почты из списка
             Random random = new Random();
+
             int randomIndex = random.Next(0, emailList.Count);
             string randomEmail = emailList[randomIndex];
 
             // Очищаем поле ввода перед вставкой нового адреса
             ClearAndEnterText(emailInput, randomEmail);
-
-            // Вводим адрес электронной почты по одной букве
-            foreach (char letter in randomEmail)
-            {
-                emailInput.SendKeys(letter.ToString());
-                Thread.Sleep(random.Next(100, 300));  // Добавляем небольшую паузу между вводом каждой буквы
-            }
         }
-
 
         // Переключаюсь на новую вкладку
         private static void SwitchToNewTab(IWebDriver driver)
         {
+            Random random = new();
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
 
@@ -411,46 +406,8 @@ namespace CianAgencyComplaint
             // Переключаемся на последнюю (новую) вкладку
             string newTabHandle = windowHandles.Last();
             driver.SwitchTo().Window(newTabHandle);
-        }
 
-
-        // Получаю число страниц которое надо будет обойти при поиске агенства
-        private static int GetTotalPages(IWebDriver driver)
-        {
-            IWebElement? pagesElement = null;
-            IWebElement? lastPageElement = null;
-            // Ожидаем полной загрузки страницы
-            WaitForDOMReady(driver);
-
-            //Если всплыли окна, закрываю
-            ClosePopup(driver);
-
-            try
-            {
-                // Находим последний элемент списка страниц
-                pagesElement = driver.FindElement(By.CssSelector("._9400a595a7--items--F8vxh > div:last-child"));
-            }
-            catch (Exception ex)
-            {
-                logger?.Error(ex, "Не удалось получить последний элемент в списке страниц: {ErrorMessage}", ex.Message);
-            }
-
-            try
-            {
-                // Получаем элемент <span> с номером последней страницы
-                lastPageElement = pagesElement.FindElement(By.TagName("span"));
-            }
-            catch (Exception ex)
-            {
-                logger?.Error(ex, "Не удалось получить цифру с номером последней страници: {ErrorMessage}", ex.Message);
-            }
-
-
-
-            // Получаем текст из элемента <span> и преобразуем его в число
-            int totalPages = int.Parse(lastPageElement.Text);
-
-            return totalPages;
+            Thread.Sleep(random.Next(300, 700));
         }
 
         // Скроллинг
@@ -482,6 +439,8 @@ namespace CianAgencyComplaint
         // Кликаю на элементе - показать все предложения этого агенства
         private static void ClickViewAllOffersLink(IWebDriver driver)
         {
+            Random random = new();
+
             IWebElement? viewAllOffersLink = null;
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
@@ -504,10 +463,10 @@ namespace CianAgencyComplaint
                 logger?.Error(ex, "Не удалось получить или кликнуть на элемент - Смотреть все предложения: {ErrorMessage}", ex.Message);
             }
 
-
+            Thread.Sleep(random.Next(500, 1500));
         }
 
-        // Кликаю на  - принять куки
+        // Метод принятия куки
         private static void AcceptCookies(IWebDriver driver)
         {
             IWebElement? acceptButton = null;
@@ -528,6 +487,7 @@ namespace CianAgencyComplaint
             catch (Exception) { }
         }
 
+        // Метод ожидания загрузки DOM дерева
         private static void WaitForDOMReady(IWebDriver driver)
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
@@ -536,8 +496,9 @@ namespace CianAgencyComplaint
 
         private static void ClickElement(IWebDriver driver, IWebElement element)
         {
+            Random random = new Random();
             WaitForDOMReady(driver);
-            //Thread.Sleep(3000);
+
             try
             {
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", element);
@@ -548,8 +509,11 @@ namespace CianAgencyComplaint
             {
                 logger?.Error(ex, "Не удалось кликнуть на элементе: {ErrorMessage}", ex.Message);
             }
+
+            Thread.Sleep(random.Next(500, 1500));
         }
 
+        // Метод отчистки и вставки текста в Input
         private static void ClearAndEnterText(IWebElement element, string text)
         {
             Random random = new Random();
