@@ -172,7 +172,7 @@ namespace CianAgencyComplaint
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
 
                         Thread.Sleep(500);
-                        complaintButton.Click();
+                        ClickElement(driver, complaintButton);
                     }
                     catch (Exception ex)
                     {
@@ -194,7 +194,7 @@ namespace CianAgencyComplaint
                     if (!nextButton.GetAttribute("disabled").Equals("disabled"))
                     {
                         // Выполняем клик на кнопке
-                        nextButton.Click();
+                        ClickElement(driver, nextButton);
                     }
                     else
                     {
@@ -258,7 +258,7 @@ namespace CianAgencyComplaint
                     // Делаем элемент видимым, установив свойство display в block
                     ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", randomComplaintItem);
                     // Кликаем на элемент
-                    randomComplaintItem.Click();
+                    ClickElement(driver, randomComplaintItem);
                 }
                 catch (Exception ex)
                 {
@@ -316,7 +316,7 @@ namespace CianAgencyComplaint
                 IWebElement closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
 
                 // Если элемент найден, кликаем на него
-                closeButton.Click();
+                ClickElement(driver, closeButton);
             }
             catch (Exception)
             {
@@ -342,7 +342,7 @@ namespace CianAgencyComplaint
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", phoneButtonElement);
                 // Если атрибут "onclick" отсутствует, выполняем клик на элементе
                 Thread.Sleep(500);
-                phoneButtonElement.Click();
+                ClickElement(driver, phoneButtonElement);
             }
             catch (Exception)
             {
@@ -402,6 +402,7 @@ namespace CianAgencyComplaint
             }
         }
 
+
         // Переключаюсь на новую вкладку
         private static void SwitchToNewTab(IWebDriver driver)
         {
@@ -418,6 +419,7 @@ namespace CianAgencyComplaint
             string newTabHandle = windowHandles.Last();
             driver.SwitchTo().Window(newTabHandle);
         }
+
 
         // Получаю число страниц которое надо будет обойти при поиске агенства
         private static int GetTotalPages(IWebDriver driver)
@@ -525,6 +527,7 @@ namespace CianAgencyComplaint
 
         private static void ClickElement(IWebDriver driver, IWebElement element)
         {
+            Thread.Sleep(1000);
             try
             {
                 ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].click();", element);
