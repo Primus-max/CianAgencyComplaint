@@ -296,10 +296,14 @@ namespace CianAgencyComplaint
                     Thread.Sleep(2000);
                     // Находим форму ComplaintItemForm
                     complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm']"));
+
+                    // Вставляю текст в поле
+                    ClearAndEnterText(complaintForm, responseChatGPT);
+
                     // Находим кнопку отправки внутри формы
                     sendComplaintButton = complaintForm.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
                     // Выполняем клик на кнопке отправки
-                    sendComplaintButton.Click();
+                    ClickElement(driver, sendComplaintButton);
                 }
                 catch (Exception ex)
                 {
