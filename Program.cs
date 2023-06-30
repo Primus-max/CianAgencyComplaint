@@ -2,21 +2,33 @@
 {
     class Program
     {
-        static Task Main(string[] args)
+        static async Task Main(string[] args)
         {
-            int delayHours = GetDelayHours();
 
-            AgencyManager agencyManager = new AgencyManager();
-            string agencyName = GetAgencyName();
+            #region API CAHTGPT
+            ChatGptApi chatGptApi = new ChatGptApi("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");
 
-            while (true)
-            {
-                agencyManager.RunComplaintProcess(agencyName);
+            string question = $"Привет, как у тебя дела?";
+            string response = await chatGptApi.GetChatGptResponse(question);
 
-                // Ожидаем заданное время в часах перед следующей итерацией
-                Console.WriteLine($"Ожидание перед следующей итерацией: {delayHours} ч.");
-                Thread.Sleep(delayHours * 60 * 60 * 1000); // Преобразуем часы в миллисекунды
-            }
+            // Далее можно обработать полученный ответ
+            Console.WriteLine(response);
+            Console.ReadLine();
+            #endregion
+
+            //int delayHours = GetDelayHours();
+
+            //AgencyManager agencyManager = new AgencyManager();
+            //string agencyName = GetAgencyName();
+
+            //while (true)
+            //{
+            //    agencyManager.RunComplaintProcess(agencyName);
+
+            //    // Ожидаем заданное время в часах перед следующей итерацией
+            //    Console.WriteLine($"Ожидание перед следующей итерацией: {delayHours} ч.");
+            //    Thread.Sleep(delayHours * 60 * 60 * 1000); // Преобразуем часы в миллисекунды
+            //}
         }
 
         // Задержка работы программы.

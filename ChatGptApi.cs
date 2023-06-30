@@ -11,28 +11,10 @@ public class ChatGptApi
     private readonly string API_KEY;
     private readonly HttpClient httpClient;
 
-    // Добавляем поля для прокси-сервера, пароля, порта и сервера
-    private readonly string PROXY_SERVER = "168.196.236.11";
-    private readonly int PROXY_PORT = 50100;
-    private readonly string PROXY_USERNAME = "urkytsk3";
-    private readonly string PROXY_PASSWORD = "fNBZjoyVt6";
-
     public ChatGptApi(string apiKey)
     {
         API_KEY = apiKey;
-
-
-        // Создаем HttpClientHandler для настройки прокси
-        var handler = new HttpClientHandler
-        {
-            Proxy = new WebProxy(PROXY_SERVER, PROXY_PORT)
-            {
-                Credentials = new NetworkCredential(PROXY_USERNAME, PROXY_PASSWORD)
-            },
-            UseProxy = true
-        };
-
-        httpClient = new HttpClient(handler);
+        httpClient = new HttpClient();
         httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {API_KEY}");
     }
 
@@ -40,10 +22,18 @@ public class ChatGptApi
     {
         try
         {
-            var content = new StringContent("{\"model\": \"text-davinci-edit-001\", \"prompt\": \"" + prompt + "\",\"temperature\": 0.3,\"max_tokens\": 25}",
+            var requestModel = new GptApiRequest
+            {
+                Model = "text-davinci-003",
+                Prompt = prompt,
+                Temperature = 0.3,
+                MaxTokens = 25,
+            };
+
+            var content = new StringContent(JsonConvert.SerializeObject(requestModel),
                 Encoding.UTF8, "application/json");
 
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.openai.com/v1/completions", content);
+            HttpResponseMessage response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
             response.EnsureSuccessStatusCode();
 
             string responseString = await response.Content.ReadAsStringAsync();
@@ -58,3 +48,11 @@ public class ChatGptApi
     }
 }
 
+public class GptApiRequest
+{
+    public string? Model { get; set; }
+    public string? Prompt { get; set; }
+    public double Temperature { get; set; }
+    public int MaxTokens { get; set; }
+
+}
