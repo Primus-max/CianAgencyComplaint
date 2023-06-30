@@ -4,7 +4,6 @@
     {
         static Task Main(string[] args)
         {
-
             int delayHours = GetDelayHours();
 
             AgencyManager agencyManager = new AgencyManager();

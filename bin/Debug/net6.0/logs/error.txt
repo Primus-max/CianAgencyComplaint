@@ -1045,3 +1045,128 @@ OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate elemen
    at OpenQA.Selenium.By.FindElement(ISearchContext context)
    at OpenQA.Selenium.WebDriver.FindElement(By by)
    at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:08:58.192 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:09:07.925 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:11:37.746 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:11:47.425 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:19:12.472 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:19:22.029 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:22:02.530 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:22:12.215 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:27:33.826 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.InternalExecute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebElement.Execute(String commandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebElement.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebElement.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 311
+2023-07-01 07:27:43.451 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 299
+2023-07-01 07:27:55.579 +08:00 [ERR] Не удалось отправить вставить email: no such element: Unable to locate element: {"method":"css selector","selector":"input[name='email']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"input[name='email']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 331
+2023-07-01 07:28:22.198 +08:00 [ERR] Не удалось получить заголовок офера stale element reference: stale element not found
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#stale-element-reference-exception

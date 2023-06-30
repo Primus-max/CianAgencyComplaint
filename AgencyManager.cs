@@ -296,14 +296,13 @@ namespace CianAgencyComplaint
                     // Ожидаем полной загрузки страницы
                     Thread.Sleep(2000);
                     // Находим форму ComplaintItemForm
-                    complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm']"));
+                    complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm'] textarea[name='message']"));
 
                     ChatGptApi chatGptApi = new();
                     // Получаю текст выбранной жалобы
-                    string? complaintText = randomComplaintItem.Text;
-                    string? requestChatGPT = $"Дополни пожалуйста эту причину жалобы - {complaintText}, 5-10 слов, на русском языке, " +
-                        $"которая отражает суть данные проблемы. При прочтении этой жалобы должно отреагировать на неё";
-                    string? responseChatGPT = await chatGptApi.GetChatGptResponse(requestChatGPT);
+                    string? complaintText = randomComplaintItem?.Text;
+                    // Отправляю / получаю ответ от ChatGPT
+                    string? responseChatGPT = await chatGptApi.GetChatGptResponse(complaintText);
 
                     // Вставляю текст в поле
                     ClearAndEnterText(complaintForm, responseChatGPT);
@@ -400,7 +399,7 @@ namespace CianAgencyComplaint
 
             }
             // Получаем текст внутри элемента
-            string phoneValueText = phoneValueElement.Text;
+            string phoneValueText = phoneValueElement?.Text;
 
             // Возвращаем текст
             return phoneValueText;
@@ -577,7 +576,7 @@ namespace CianAgencyComplaint
                     element.SendKeys(letter.ToString());
                 }
 
-                Thread.Sleep(random.Next(100, 500));  // Добавляем небольшую паузу между вводом каждого символа
+                Thread.Sleep(random.Next(50, 150));  // Добавляем небольшую паузу между вводом каждого символа
             }
             Thread.Sleep(random.Next(500, 1200));
         }
