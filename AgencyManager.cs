@@ -1,7 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
-using Serilog;
+using Serilog.Core;
 using System.Drawing;
 
 namespace CianAgencyComplaint
@@ -10,8 +10,11 @@ namespace CianAgencyComplaint
     {
         public static List<string> phoneNumbers = new List<string>();
         public static string? curPhoneNumber;
-        public static ILogger? logger = null;
+        public static string? offerTitleText;
+        public static Logger? logger = null;
         public static HashSet<IWebElement>? clickedElements = null;
+        public static List<string> offerTitles = new List<string>();
+
 
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
@@ -38,6 +41,8 @@ namespace CianAgencyComplaint
             AuthorizationHelper authHelper = new AuthorizationHelper();
             authHelper.Login(_driver);
 
+            Thread.Sleep(3000);
+
             AcceptCookies(_driver);
 
             // Ожидаем полной загрузки страницы
@@ -49,8 +54,11 @@ namespace CianAgencyComplaint
             IWebElement? agencyCard = null;
             try
             {
-                // Получаю список агентств на текущей странице
-                agencyCard = _driver.FindElement(By.CssSelector("[data-name='AgencyCard']"));
+                // Получаем список агентств на текущей странице
+                var agencyCards = _driver.FindElements(By.CssSelector("[data-name='AgencyCard']"));
+
+                // Выбираем первый элемент из списка (если он доступен)
+                agencyCard = agencyCards.FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -120,14 +128,14 @@ namespace CianAgencyComplaint
             string? lastPageText;
             int maxPage;
 
-            IReadOnlyCollection<IWebElement> offerElements = null;
+            IReadOnlyCollection<IWebElement>? offerElements = null;
 
             while (true)
             {
 
                 try
                 {
-                    // Получаем элементы с предложениями на текущей странице
+                    // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
                     offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
                 }
                 catch (Exception ex)
@@ -135,12 +143,26 @@ namespace CianAgencyComplaint
                     logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
                 }
 
+
                 // Проходим по каждому элементу и кликаем на него
                 foreach (IWebElement offerElement in offerElements)
                 {
                     curPhoneNumber = GetPhoneNumber(offerElement, driver);
 
-                    if (AgencyManager.clickedElements?.Contains(offerElement))
+                    IWebElement offerTitleElement = null;
+
+                    try
+                    {
+                        offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
+                        offerTitleText = offerTitleElement.Text;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error($"Не удалось получить заголовок офера {ex.Message}");
+                    }
+
+
+                    if (offerTitles.Contains(offerTitleText))
                     {
                         continue;
                     }
@@ -294,7 +316,8 @@ namespace CianAgencyComplaint
                 if (!string.IsNullOrEmpty(curPhoneNumber))
                 {
                     phoneNumbers.Add(curPhoneNumber);
-                    logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber}");
+                    logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
+                    offerTitles.Add(offerTitleText);
                 }
             }
             catch (Exception ex)

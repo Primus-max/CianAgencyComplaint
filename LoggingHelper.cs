@@ -8,8 +8,12 @@ public static class LoggingHelper
     {
         // Создаем конфигурацию для логирования
         var loggerConfiguration = new LoggerConfiguration()
-            .WriteTo.File("logs/info.txt", restrictedToMinimumLevel: LogEventLevel.Information)  // Файл для записи простой информации
-            .WriteTo.File("logs/error.txt", restrictedToMinimumLevel: LogEventLevel.Error);  // Файл для записи ошибок
+            .WriteTo.Logger(lc => lc
+                .Filter.ByIncludingOnly(evt => evt.Level == LogEventLevel.Information)
+                .WriteTo.File("logs/info.txt"))
+            .WriteTo.Logger(lc => lc
+                .Filter.ByIncludingOnly(evt => evt.Level == LogEventLevel.Error)
+                .WriteTo.File("logs/error.txt"));
 
         // Создаем логгер
         var logger = loggerConfiguration.CreateLogger();
@@ -19,4 +23,5 @@ public static class LoggingHelper
 
         return logger;
     }
+
 }

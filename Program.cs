@@ -2,9 +2,8 @@
 {
     class Program
     {
-        static void Main(string[] args)
+        static Task Main(string[] args)
         {
-
             int delayHours = GetDelayHours();
 
             AgencyManager agencyManager = new AgencyManager();

@@ -112,7 +112,7 @@ public class AuthorizationHelper
         foreach (char c in text)
         {
             element.SendKeys(c.ToString());
-            Delay(100); // Задержка для имитации печати
+            Delay(300); // Задержка для имитации печати
         }
     }
 
