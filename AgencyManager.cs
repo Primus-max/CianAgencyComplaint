@@ -2,8 +2,6 @@
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog;
-using Serilog.Core;
-using System;
 using System.Drawing;
 
 namespace CianAgencyComplaint
@@ -13,6 +11,7 @@ namespace CianAgencyComplaint
         public static List<string> phoneNumbers = new List<string>();
         public static string? curPhoneNumber;
         public static ILogger? logger = null;
+        public static HashSet<IWebElement>? clickedElements = null;
 
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
@@ -139,11 +138,9 @@ namespace CianAgencyComplaint
                 // Проходим по каждому элементу и кликаем на него
                 foreach (IWebElement offerElement in offerElements)
                 {
-                    //curPhoneNumber = string.Empty;
-
                     curPhoneNumber = GetPhoneNumber(offerElement, driver);
 
-                    if (phoneNumbers.Contains(curPhoneNumber))
+                    if (AgencyManager.clickedElements?.Contains(offerElement))
                     {
                         continue;
                     }
@@ -173,7 +170,7 @@ namespace CianAgencyComplaint
                     }
 
                     // Отправляю жалобу
-                    SendComplaint(driver);
+                    SendComplaint(driver, offerElement);
 
                     Thread.Sleep(2000);
                 }
@@ -205,7 +202,7 @@ namespace CianAgencyComplaint
         }
 
         // Отправка жалобы
-        private static void SendComplaint(IWebDriver driver)
+        private static void SendComplaint(IWebDriver driver, IWebElement offerCard)
         {
             IReadOnlyCollection<IWebElement> complaintItems = null;
             IWebElement? randomComplaintItem = null;
@@ -270,14 +267,6 @@ namespace CianAgencyComplaint
                     sendComplaintButton = complaintForm.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
                     // Выполняем клик на кнопке отправки
                     sendComplaintButton.Click();
-
-                    // При удачной отправке жалобы добавляю телефон
-                    if (!string.IsNullOrEmpty(curPhoneNumber))
-                    {
-                        phoneNumbers.Add(curPhoneNumber);
-                        logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber}");
-                    }
-
                 }
                 catch (Exception ex)
                 {
@@ -297,6 +286,16 @@ namespace CianAgencyComplaint
                 // Находим элемент <input> по атрибуту name
                 IWebElement? emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
                 EnterRandomEmail(emailInput);
+
+                // Добавляю элемент в список кликнутых
+                clickedElements?.Add(offerCard);
+
+                // При удачной отправке жалобы добавляю телефон
+                if (!string.IsNullOrEmpty(curPhoneNumber))
+                {
+                    phoneNumbers.Add(curPhoneNumber);
+                    logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber}");
+                }
             }
             catch (Exception ex)
             {
