@@ -298,7 +298,7 @@ namespace CianAgencyComplaint
                     // Находим форму ComplaintItemForm
                     complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm']"));
 
-                    ChatGptApi chatGptApi = new ChatGptApi(API_KEY);
+                    ChatGptApi chatGptApi = new();
                     // Получаю текст выбранной жалобы
                     string? complaintText = randomComplaintItem.Text;
                     string? requestChatGPT = $"Дополни пожалуйста эту причину жалобы - {complaintText}, 5-10 слов, на русском языке, " +

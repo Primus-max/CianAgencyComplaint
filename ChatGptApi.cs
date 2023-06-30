@@ -1,58 +1,37 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using static System.Net.Mime.MediaTypeNames;
+﻿
+using OpenAI_API;
+using OpenAI_API.Chat;
 
 public class ChatGptApi
 {
-    private readonly string API_KEY;
-    private readonly HttpClient httpClient;
+    private readonly OpenAIAPI api;
+    private readonly string API_KEY = "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";
 
-    public ChatGptApi(string apiKey)
+    public ChatGptApi()
     {
-        API_KEY = apiKey;
-        httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.Add("authorization", $"Bearer {API_KEY}");
+        api = new OpenAIAPI(API_KEY);
     }
 
     public async Task<string> GetChatGptResponse(string prompt)
     {
-        try
+        var chat = api.Chat.CreateConversation();
+        chat.AppendSystemMessage("Ты пишешь жалобу на сайте по покупке, аренде жилья. Тебе даётся фраза, ты её дополняешь на русском языке 10-15 слов. " +
+            "Ты должен убеждать в своей правде, чтобы сайт отреагировал и заблокировал объявление");
+
+        // Добавьте необходимые сообщения пользователя и ассистента
+        chat.AppendUserInput("На что жалуетесь?");
+        chat.AppendExampleChatbotOutput("Предложение уже неактуально или вымышленный объект");
+
+        // Задайте вопрос и получите ответ
+        chat.AppendUserInput(prompt);
+        string response = await chat.GetResponseFromChatbotAsync();
+
+        // Выводим все сообщения из диалога
+        foreach (ChatMessage msg in chat.Messages)
         {
-            var requestModel = new GptApiRequest
-            {
-                Model = "text-davinci-003",
-                Prompt = prompt,
-                Temperature = 0.3,
-                MaxTokens = 25,
-            };
-
-            var content = new StringContent(JsonConvert.SerializeObject(requestModel),
-                Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await httpClient.PostAsync("https://api.openai.com/v1/chat/completions", content);
-            response.EnsureSuccessStatusCode();
-
-            string responseString = await response.Content.ReadAsStringAsync();
-
-            var dyData = JsonConvert.DeserializeObject<dynamic>(responseString);
-            return dyData!.choices[0].text;
+            Console.WriteLine($"{msg.Role}: {msg.Content}");
         }
-        catch (Exception ex)
-        {
-            return $"ОШИБКА! Не удалось получить ответ от API: {ex.Message}";
-        }
+
+        return response;
     }
-}
-
-public class GptApiRequest
-{
-    public string? Model { get; set; }
-    public string? Prompt { get; set; }
-    public double Temperature { get; set; }
-    public int MaxTokens { get; set; }
-
 }
