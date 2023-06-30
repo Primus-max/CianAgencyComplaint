@@ -15,6 +15,16 @@ namespace CianAgencyComplaint
         public static HashSet<IWebElement>? clickedElements = null;
         public static List<string> offerTitles = new List<string>();
 
+        #region API CAHTGPT
+        //ChatGptApi chatGptApi = new ChatGptApi("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");
+
+        //string question = "Привет, расскажи о себе";
+        //string response = await chatGptApi.GetChatGptResponse(question);
+
+        //// Далее можно обработать полученный ответ
+        //Console.WriteLine(response);
+        //    Console.ReadLine();
+        #endregion
 
         // Основной метод (точка входа)
         public void RunComplaintProcess(string agencyName)
@@ -116,7 +126,7 @@ namespace CianAgencyComplaint
         }
 
         // Получаю и нажимаю на кнопку - Пожаловаться
-        private static void ProcessAllOffers(IWebDriver driver)
+        private static async void ProcessAllOffers(IWebDriver driver)
         {
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
@@ -192,7 +202,7 @@ namespace CianAgencyComplaint
                     }
 
                     // Отправляю жалобу
-                    SendComplaint(driver, offerElement);
+                    await SendComplaintAsync(driver, offerElement);
 
                     Thread.Sleep(2000);
                 }
@@ -224,7 +234,7 @@ namespace CianAgencyComplaint
         }
 
         // Отправка жалобы
-        private static void SendComplaint(IWebDriver driver, IWebElement offerCard)
+        private static async Task SendComplaintAsync(IWebDriver driver, IWebElement offerCard)
         {
             IReadOnlyCollection<IWebElement> complaintItems = null;
             IWebElement? randomComplaintItem = null;
@@ -265,19 +275,19 @@ namespace CianAgencyComplaint
                 {
                     // Выбираем случайный элемент ComplaintItem
                     randomComplaintItem = complaintItems.ElementAt(randomIndex);
-                    // Делаем элемент видимым, установив свойство display в block
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", randomComplaintItem);
 
-                    Thread.Sleep(300);
-
-                    // Кликаем на элемент
-                    randomComplaintItem.Click();
-                    // ClickElement(driver, randomComplaintItem);
+                    ClickElement(driver, randomComplaintItem);
                 }
                 catch (Exception ex)
                 {
-                    logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
+                    //logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
+
+                ChatGptApi chatGptApi = new ChatGptApi("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");
+                // Получаю текст выбранной жалобы
+                string? complaintText = randomComplaintItem.Text;
+                string? requestChatGPT = $"Дополни пожалуйста эту причину жалобы - {complaintText}, 10-20 слов, на русском языке";
+                string? responseChatGPT = await chatGptApi.GetChatGptResponse(requestChatGPT);
 
                 try
                 {
