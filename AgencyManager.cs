@@ -14,6 +14,7 @@ namespace CianAgencyComplaint
         public static Logger? logger = null;
         public static HashSet<IWebElement>? clickedElements = null;
         public static List<string> offerTitles = new List<string>();
+        public static string? API_KEY = "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";
 
         #region API CAHTGPT
         //ChatGptApi chatGptApi = new ChatGptApi("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");
@@ -283,7 +284,7 @@ namespace CianAgencyComplaint
                     //logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
 
-                ChatGptApi chatGptApi = new ChatGptApi("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");
+                ChatGptApi chatGptApi = new ChatGptApi(API_KEY);
                 // Получаю текст выбранной жалобы
                 string? complaintText = randomComplaintItem.Text;
                 string? requestChatGPT = $"Дополни пожалуйста эту причину жалобы - {complaintText}, 10-20 слов, на русском языке";
