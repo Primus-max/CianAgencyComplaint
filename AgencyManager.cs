@@ -3,6 +3,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog.Core;
+using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
@@ -125,12 +126,58 @@ namespace CianAgencyComplaint
         {
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
+            int pageNumber = 2;
 
 
             IReadOnlyCollection<IWebElement>? offerElements = null;
 
             while (true)
             {
+                try
+                {
+                    while (true)
+                    {
+                        try
+                        {
+
+                            // Поиск всех элементов с классом "_93444fe79c--button--Cp1dl" и текстом "Дальше"
+                            IWebElement nextButtons = driver.FindElement(By.XPath("//a[contains(@class, '_93444fe79c--button--Cp1dl') and span[text()='Дальше']]"));
+
+                            // Получение текущего URL
+                            string currentUrl = driver.Url;
+                            string newUrl;
+
+                            if (currentUrl.Contains("&p="))
+                            {
+                                // Заменяем значение параметра "&p=" на нужную страницу
+                                newUrl = Regex.Replace(currentUrl, @"&p=\d+", "&p=" + pageNumber);
+                            }
+                            else
+                            {
+                                // Добавляем новый параметр "&p=" со значением страницы
+                                newUrl = currentUrl + "&p=" + pageNumber;
+                            }
+
+                            // Переходим по новому URL
+                            driver.Navigate().GoToUrl(newUrl);
+
+                            WaitForDOMReady(driver);
+
+                            pageNumber++;
+                        }
+                        catch (Exception)
+                        {
+                            return;
+                        }
+
+
+
+                    }
+
+
+                }
+                catch (Exception) { }
+
                 try
                 {
                     // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
@@ -213,7 +260,7 @@ namespace CianAgencyComplaint
                 {
                     // Получение кнопки "Дальше"
                     IWebElement nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl"));
-
+                    nextButton.Click();
                     // Проверка наличия атрибута "disabled"
                     bool hasDisabledAttribute = nextButton.GetAttribute("disabled") != null;
 
@@ -224,15 +271,68 @@ namespace CianAgencyComplaint
                         // Все страницы пролистаны, выход из цикла
                         return;
                     }
+                    else
+                    {
+                        // Получение текущего URL
+                        string currentUrl = driver.Url;
+
+                        // Извлечение значения пагинации из текущего URL
+                        int paginationValue = ExtractPaginationValue(currentUrl);
+
+                        // Увеличение значения пагинации на 1
+                        paginationValue++;
+
+                        // Формирование нового URL с обновленным значением пагинации
+                        string newUrl = UpdatePaginationValue(currentUrl, paginationValue);
+
+                        // Переход по новому URL
+                        driver.Navigate().GoToUrl(newUrl);
+
+                        // Здесь вы можете продолжить вашу логику пагинации и извлечение данных со страницы
+                    }
                 }
                 catch (Exception) { }
-
             }
+        }
 
+        // Метод для извлечения значения пагинации из URL
+        private static int ExtractPaginationValue(string url)
+        {
+            // Находим позицию символа 'p=' в URL
+            int startIndex = url.IndexOf("p=") + 2;
 
-            // Ожидаем загрузки новой страницы
-            Thread.Sleep(2000);
+            // Извлекаем подстроку, содержащую значение пагинации
+            string paginationValue = url.Substring(startIndex);
 
+            // Парсим значение пагинации в целое число
+            int value;
+            if (int.TryParse(paginationValue, out value))
+            {
+                return value;
+            }
+            else
+            {
+                // В случае ошибки парсинга возвращаем значение 0
+                return 0;
+            }
+        }
+
+        // Метод для обновления значения пагинации в URL
+        private static string UpdatePaginationValue(string url, int newValue)
+        {
+            // Находим позицию символа 'p=' в URL
+            int startIndex = url.IndexOf("p=") + 2;
+
+            // Извлекаем подстроку до пагинации
+            string prefix = url.Substring(0, startIndex);
+
+            // Извлекаем подстроку после пагинации
+            string suffix = url.Substring(startIndex + 1);
+
+            // Формируем новую строку URL с обновленным значением пагинации
+            string newUrl = $"{prefix}{newValue}{suffix}";
+
+            return newUrl;
         }
 
         // Отправка жалобы
