@@ -171,6 +171,7 @@ namespace CianAgencyComplaint
                     catch (Exception ex)
                     {
                         logger.Error($"Не удалось получить заголовок офера {ex.Message}");
+                        continue;
                     }
 
 
@@ -315,6 +316,8 @@ namespace CianAgencyComplaint
                 catch (Exception ex)
                 {
                     logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
+                    //ClosePopup(driver);
+                    //continue;
                 }
 
                 // Ожидаем полной загрузки страницы
@@ -534,7 +537,7 @@ namespace CianAgencyComplaint
         // Метод ожидания загрузки DOM дерева
         private static void WaitForDOMReady(IWebDriver driver)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(60));
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(90));
             wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
         }
 
@@ -578,7 +581,7 @@ namespace CianAgencyComplaint
 
                 Thread.Sleep(random.Next(50, 150));  // Добавляем небольшую паузу между вводом каждого символа
             }
-            Thread.Sleep(random.Next(500, 1200));
+            Thread.Sleep(random.Next(300, 700));
         }
 
     }
