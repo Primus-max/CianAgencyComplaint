@@ -201,7 +201,6 @@ namespace CianAgencyComplaint
 
                     if (offerTitles.Count == offerElements.Count)
                     {
-                        offerTitles = new List<string>();
                         // Переход на следующую страницу
                         return;
                     }
@@ -221,9 +220,9 @@ namespace CianAgencyComplaint
                     // Проверка, есть ли еще страницы для пролистывания
                     if (hasDisabledAttribute)
                     {
+                        offerTitles = new List<string>();
                         // Все страницы пролистаны, выход из цикла
                         return;
-                        clickedElements = new List<string>();
                     }
                 }
                 catch (Exception) { }
@@ -289,8 +288,6 @@ namespace CianAgencyComplaint
                 {
                     //logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
-
-
 
                 try
                 {
