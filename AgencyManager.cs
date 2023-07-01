@@ -4,6 +4,7 @@ using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog.Core;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace CianAgencyComplaint
@@ -18,25 +19,15 @@ namespace CianAgencyComplaint
         public static List<string> offerTitles = new List<string>();
         public static string? API_KEY = "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";
 
-        #region API CAHTGPT
-        //ChatGptApi chatGptApi = new ChatGptApi("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");
-
-        //string question = "Привет, расскажи о себе";
-        //string response = await chatGptApi.GetChatGptResponse(question);
-
-        //// Далее можно обработать полученный ответ
-        //Console.WriteLine(response);
-        //    Console.ReadLine();
-        #endregion
 
         // Основной метод (точка входа)
-        public void RunComplaintProcess(string agencyName)
+        public void RunComplaintProcess(string agencyName, IWebDriver driver)
         {
             // Инициализация логера
             logger = LoggingHelper.ConfigureLogger();
 
             // Получаем driver
-            IWebDriver _driver = WebDriverFactory.GetDriver();
+            IWebDriver _driver = driver;
 
             // Переходим на страницу агентств
             _driver.Navigate().GoToUrl("https://tomsk.cian.ru/agentstva/?regionId=4620&page=1");
@@ -98,9 +89,6 @@ namespace CianAgencyComplaint
             SwitchToNewTab(_driver);
 
             ProcessAllOffers(_driver);
-
-            _driver.Quit();
-            _driver.Close();
         }
 
         // Метод поиска по названию агенства
@@ -138,105 +126,110 @@ namespace CianAgencyComplaint
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
 
-            HashSet<IWebElement>? clickedElements = new HashSet<IWebElement>();
-            IWebElement? paginationElement = null;
-            IWebElement? lastPageElement;
-            IWebElement? nextPageElement = null;
-            string? lastPageText;
-            int maxPage;
 
             IReadOnlyCollection<IWebElement>? offerElements = null;
 
-
-            try
+            while (true)
             {
-                // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
-                offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
-            }
-            catch (Exception ex)
-            {
-                logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
-            }
-
-
-            // Проходим по каждому элементу и кликаем на него
-            for (int i = 0; i < offerElements.Count; i++)
-            {
-                var offerElement = offerElements.ToList()[i];
-
-                Thread.Sleep(3000);
-
-                curPhoneNumber = GetPhoneNumber(offerElement, driver);
-
-                IWebElement offerTitleElement = null;
-
                 try
                 {
-                    offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
-                    offerTitleText = offerTitleElement.Text;
+                    // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
+                    offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
                 }
                 catch (Exception ex)
                 {
-                    logger.Error($"Не удалось получить заголовок офера {ex.Message}");
-                    continue;
+                    logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
                 }
 
 
-                if (offerTitles.Contains(offerTitleText))
+                // Проходим по каждому элементу и кликаем на него
+                foreach (var offerElement in offerElements)
                 {
-                    continue;
+
+                    Thread.Sleep(3000);
+
+                    curPhoneNumber = GetPhoneNumber(offerElement, driver);
+
+                    IWebElement? offerTitleElement = null;
+
+                    try
+                    {
+                        offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
+                        offerTitleText = offerTitleElement.Text;
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error($"Не удалось получить заголовок офера {ex.Message}");
+
+                        // Обновить список элементов на странице после действий с текущим элементом
+                        offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
+                        continue;
+                    }
+
+
+                    if (offerTitles.Contains(offerTitleText))
+                    {
+                        continue;
+                    }
+
+                    ScrollToElement(driver, offerElement);
+
+                    Thread.Sleep(2000);
+
+                    // Наводим курсор на элемент
+                    Actions actions = new Actions(driver);
+                    actions.MoveToElement(offerElement).Perform();
+
+                    Thread.Sleep(1000);
+
+                    try
+                    {
+                        IWebElement? complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
+                        // Изменяем стиль элемента на "display: block" с использованием JavaScript
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
+
+                        Thread.Sleep(500);
+                        ClickElement(driver, complaintButton);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
+                    }
+
+                    // Отправляю жалобу
+                    await SendComplaintAsync(driver, offerElement);
+
+                    if (offerTitles.Count == offerElements.Count)
+                    {
+                        offerTitles = new List<string>();
+                        // Переход на следующую страницу
+                        return;
+                    }
+
+                    Thread.Sleep(2000);
                 }
 
-                ScrollToElement(driver, offerElement);
-
-                Thread.Sleep(2000);
-
-                // Наводим курсор на элемент
-                Actions actions = new Actions(driver);
-                actions.MoveToElement(offerElement).Perform();
-
-                Thread.Sleep(1000);
 
                 try
                 {
-                    IWebElement? complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
-                    // Изменяем стиль элемента на "display: block" с использованием JavaScript
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
+                    // Получение кнопки "Дальше"
+                    IWebElement nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl"));
 
-                    Thread.Sleep(500);
-                    ClickElement(driver, complaintButton);
+                    // Проверка наличия атрибута "disabled"
+                    bool hasDisabledAttribute = nextButton.GetAttribute("disabled") != null;
+
+                    // Проверка, есть ли еще страницы для пролистывания
+                    if (hasDisabledAttribute)
+                    {
+                        // Все страницы пролистаны, выход из цикла
+                        return;
+                        clickedElements = new List<string>();
+                    }
                 }
-                catch (Exception ex)
-                {
-                    logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
-                }
+                catch (Exception) { }
 
-                // Отправляю жалобу
-                await SendComplaintAsync(driver, offerElement);
-
-                Thread.Sleep(2000);
             }
 
-
-            try
-            {
-                IWebElement? nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl._93444fe79c--link-button--Pewgf._93444fe79c--M--T3GjF._93444fe79c--button--dh5GL"));
-
-                // Проверяем, является ли кнопка активной (не disabled)
-                if (!nextButton.GetAttribute("disabled").Equals("disabled"))
-                {
-                    // Выполняем клик на кнопке
-                    ClickElement(driver, nextButton);
-                }
-                else
-                {
-                    return;
-                }
-            }
-            catch (Exception ex)
-            {
-                logger?.Error(ex, "Ошибка в получении кнопки - ДАЛЬШЕ: {ErrorMessage}", ex.Message);
-            }
 
             // Ожидаем загрузки новой страницы
             Thread.Sleep(2000);
@@ -345,15 +338,15 @@ namespace CianAgencyComplaint
                 IWebElement? emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
                 EnterRandomEmail(emailInput);
 
-                // Добавляю элемент в список кликнутых
-                clickedElements?.Add(offerCard);
+                offerTitles.Add(offerTitleText);
+                //// Добавляю элемент в список кликнутых
+                //clickedElements?.Add(offerCard);
 
                 // При удачной отправке жалобы добавляю телефон
                 if (!string.IsNullOrEmpty(curPhoneNumber))
                 {
                     phoneNumbers.Add(curPhoneNumber);
                     logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
-                    offerTitles.Add(offerTitleText);
                 }
             }
             catch (Exception ex)
