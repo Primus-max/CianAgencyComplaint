@@ -17,7 +17,6 @@ namespace CianAgencyComplaint
 
                 agencyManager.RunComplaintProcess(agencyName, driver);
 
-                // driver.Quit();
                 // Ожидаем заданное время в часах перед следующей итерацией
                 Console.WriteLine($"Ожидание перед следующей итерацией: {delayHours} ч.");
                 Thread.Sleep(delayHours * 60 * 60 * 1000); // Преобразуем часы в миллисекунды

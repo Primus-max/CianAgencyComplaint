@@ -129,59 +129,16 @@ namespace CianAgencyComplaint
             int pageNumber = 2;
 
 
-            IReadOnlyCollection<IWebElement>? offerElements = null;
+            List<IWebElement> offerElements = null;
 
             while (true)
             {
-                try
-                {
-                    while (true)
-                    {
-                        try
-                        {
-
-                            // Поиск всех элементов с классом "_93444fe79c--button--Cp1dl" и текстом "Дальше"
-                            IWebElement nextButtons = driver.FindElement(By.XPath("//a[contains(@class, '_93444fe79c--button--Cp1dl') and span[text()='Дальше']]"));
-
-                            // Получение текущего URL
-                            string currentUrl = driver.Url;
-                            string newUrl;
-
-                            if (currentUrl.Contains("&p="))
-                            {
-                                // Заменяем значение параметра "&p=" на нужную страницу
-                                newUrl = Regex.Replace(currentUrl, @"&p=\d+", "&p=" + pageNumber);
-                            }
-                            else
-                            {
-                                // Добавляем новый параметр "&p=" со значением страницы
-                                newUrl = currentUrl + "&p=" + pageNumber;
-                            }
-
-                            // Переходим по новому URL
-                            driver.Navigate().GoToUrl(newUrl);
-
-                            WaitForDOMReady(driver);
-
-                            pageNumber++;
-                        }
-                        catch (Exception)
-                        {
-                            return;
-                        }
-
-
-
-                    }
-
-
-                }
-                catch (Exception) { }
 
                 try
                 {
                     // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
-                    offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
+                    offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+
                 }
                 catch (Exception ex)
                 {
@@ -189,150 +146,164 @@ namespace CianAgencyComplaint
                 }
 
 
-                // Проходим по каждому элементу и кликаем на него
-                foreach (var offerElement in offerElements)
+                foreach (IWebElement offerElement in offerElements)
                 {
-
-                    Thread.Sleep(3000);
-
-                    curPhoneNumber = GetPhoneNumber(offerElement, driver);
-
-                    IWebElement? offerTitleElement = null;
-
-                    try
-                    {
-                        offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
-                        offerTitleText = offerTitleElement.Text;
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error($"Не удалось получить заголовок офера {ex.Message}");
-
-                        // Обновить список элементов на странице после действий с текущим элементом
-                        offerElements = driver.FindElements(By.CssSelector("[data-name='CardComponent']"));
-                        continue;
-                    }
-
-
-                    if (offerTitles.Contains(offerTitleText))
-                    {
-                        continue;
-                    }
-
-                    ScrollToElement(driver, offerElement);
-
-                    Thread.Sleep(2000);
-
-                    // Наводим курсор на элемент
-                    Actions actions = new Actions(driver);
-                    actions.MoveToElement(offerElement).Perform();
-
-                    Thread.Sleep(1000);
-
-                    try
-                    {
-                        IWebElement? complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
-                        // Изменяем стиль элемента на "display: block" с использованием JavaScript
-                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
-
-                        Thread.Sleep(500);
-                        ClickElement(driver, complaintButton);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
-                    }
-
-                    // Отправляю жалобу
-                    await SendComplaintAsync(driver, offerElement);
 
                     if (offerTitles.Count == offerElements.Count)
                     {
-                        // Переход на следующую страницу
-                        return;
-                    }
-
-                    Thread.Sleep(2000);
-                }
-
-
-                try
-                {
-                    // Получение кнопки "Дальше"
-                    IWebElement nextButton = driver.FindElement(By.CssSelector("a._93444fe79c--button--Cp1dl"));
-                    nextButton.Click();
-                    // Проверка наличия атрибута "disabled"
-                    bool hasDisabledAttribute = nextButton.GetAttribute("disabled") != null;
-
-                    // Проверка, есть ли еще страницы для пролистывания
-                    if (hasDisabledAttribute)
-                    {
+                        PerformPagination(driver, ref pageNumber);
+                        offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
                         offerTitles = new List<string>();
-                        // Все страницы пролистаны, выход из цикла
-                        return;
+
+                        continue;
                     }
-                    else
+
+                    // Получение номера телефона
+                    curPhoneNumber = GetPhoneNumber(offerElement, driver);
+
+                    try
                     {
-                        // Получение текущего URL
-                        string currentUrl = driver.Url;
+                        IWebElement offerTitleElement = null;
 
-                        // Извлечение значения пагинации из текущего URL
-                        int paginationValue = ExtractPaginationValue(currentUrl);
+                        try
+                        {
+                            offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
+                            offerTitleText = offerTitleElement.Text;
+                        }
+                        catch (NoSuchElementException ex)
+                        {
+                            // Если возникает StaleElementReferenceException, обновите страницу и начните заново
+                            driver.Navigate().Refresh();
+                            List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                            // Продолжение работы с оставшимися элементами
+                            continue;
+                        }
+                        catch (Exception ex)
+                        {
+                            // Если возникает StaleElementReferenceException, обновите страницу и начните заново
+                            driver.Navigate().Refresh();
+                            List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                            // Продолжение работы с оставшимися элементами
+                            continue;
+                        }
 
-                        // Увеличение значения пагинации на 1
-                        paginationValue++;
+                        if (offerTitles.Contains(offerTitleText))
+                        {
+                            continue;
+                        }
 
-                        // Формирование нового URL с обновленным значением пагинации
-                        string newUrl = UpdatePaginationValue(currentUrl, paginationValue);
+                        ScrollToElement(driver, offerElement);
 
-                        // Переход по новому URL
-                        driver.Navigate().GoToUrl(newUrl);
+                        Thread.Sleep(2000);
 
-                        // Здесь вы можете продолжить вашу логику пагинации и извлечение данных со страницы
+                        // Наводим курсор на элемент
+                        Actions actions = new Actions(driver);
+                        actions.MoveToElement(offerElement).Perform();
+
+                        Thread.Sleep(1000);
+
+                        try
+                        {
+                            IWebElement complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
+                            // Изменяем стиль элемента на "display: block" с использованием JavaScript
+                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
+
+                            Thread.Sleep(500);
+                            ClickElement(driver, complaintButton);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
+                        }
+
+                        // Отправляю жалобу
+                        await SendComplaintAsync(driver, offerElement);
+
+                        Thread.Sleep(2000);
                     }
+                    catch (StaleElementReferenceException)
+                    {
+                        // Если возникает StaleElementReferenceException, обновите страницу и начните заново
+                        driver.Navigate().Refresh();
+                        List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                        continue;
+                    }
+
                 }
-                catch (Exception) { }
+
+
+                //// Пагинация
+                //try
+                //{
+                //    // Проверка элемента наличие на странице, если нет, то пагинация закончилась
+                //    IWebElement nextButtons = driver.FindElement(By.XPath("//a[contains(@class, '_93444fe79c--button--Cp1dl') and span[text()='Дальше']]"));
+
+                //    // Получение текущего URL
+                //    string currentUrl = driver.Url;
+                //    string newUrl;
+
+                //    if (currentUrl.Contains("&p="))
+                //    {
+                //        // Заменяем значение параметра "&p=" на нужную страницу
+                //        newUrl = Regex.Replace(currentUrl, @"&p=\d+", "&p=" + pageNumber);
+                //    }
+                //    else
+                //    {
+                //        // Добавляем новый параметр "&p=" со значением страницы
+                //        newUrl = currentUrl + "&p=" + pageNumber;
+                //    }
+
+                //    // Переходим по новому URL
+                //    driver.Navigate().GoToUrl(newUrl);
+
+                //    WaitForDOMReady(driver);
+
+                //    pageNumber++;
+                //}
+                //catch (Exception)
+                //{
+                //    offerTitles = new List<string>();
+                //    return;
+                //}
             }
+            driver?.Close();
         }
 
-        // Метод для извлечения значения пагинации из URL
-        private static int ExtractPaginationValue(string url)
+
+        private static void PerformPagination(IWebDriver driver, ref int pageNumber)
         {
-            // Находим позицию символа 'p=' в URL
-            int startIndex = url.IndexOf("p=") + 2;
-
-            // Извлекаем подстроку, содержащую значение пагинации
-            string paginationValue = url.Substring(startIndex);
-
-            // Парсим значение пагинации в целое число
-            int value;
-            if (int.TryParse(paginationValue, out value))
+            try
             {
-                return value;
+                // Проверка элемента наличие на странице, если нет, то пагинация закончилась
+                IWebElement nextButtons = driver.FindElement(By.XPath("//a[contains(@class, '_93444fe79c--button--Cp1dl') and span[text()='Дальше']]"));
+
+                // Получение текущего URL
+                string currentUrl = driver.Url;
+                string newUrl;
+
+                if (currentUrl.Contains("&p="))
+                {
+                    // Заменяем значение параметра "&p=" на нужную страницу
+                    newUrl = Regex.Replace(currentUrl, @"&p=\d+", "&p=" + pageNumber);
+                }
+                else
+                {
+                    // Добавляем новый параметр "&p=" со значением страницы
+                    newUrl = currentUrl + "&p=" + pageNumber;
+                }
+
+                // Переходим по новому URL
+                driver.Navigate().GoToUrl(newUrl);
+
+                WaitForDOMReady(driver);
+
+                pageNumber++;
             }
-            else
+            catch (Exception)
             {
-                // В случае ошибки парсинга возвращаем значение 0
-                return 0;
+                // Если возникает исключение, пагинация закончилась
+                // Можно выполнить соответствующие действия или просто выйти из метода
             }
-        }
-
-        // Метод для обновления значения пагинации в URL
-        private static string UpdatePaginationValue(string url, int newValue)
-        {
-            // Находим позицию символа 'p=' в URL
-            int startIndex = url.IndexOf("p=") + 2;
-
-            // Извлекаем подстроку до пагинации
-            string prefix = url.Substring(0, startIndex);
-
-            // Извлекаем подстроку после пагинации
-            string suffix = url.Substring(startIndex + 1);
-
-            // Формируем новую строку URL с обновленным значением пагинации
-            string newUrl = $"{prefix}{newValue}{suffix}";
-
-            return newUrl;
         }
 
         // Отправка жалобы
@@ -343,9 +314,6 @@ namespace CianAgencyComplaint
             IWebElement? complaintForm = null;
             IWebElement? sendComplaintButton = null;
 
-
-            // Ожидаем полной загрузки страницы
-            Thread.Sleep(5000);
 
             while (true)
             {
@@ -388,6 +356,7 @@ namespace CianAgencyComplaint
                 {
                     //logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
+
 
                 try
                 {
@@ -474,7 +443,7 @@ namespace CianAgencyComplaint
         // Получаю номер телефона 
         private static string GetPhoneNumber(IWebElement offerElement, IWebDriver driver)
         {
-            ClosePopup(driver);
+            //ClosePopup(driver);
 
             IWebElement? phoneValueElement = null;
             try
