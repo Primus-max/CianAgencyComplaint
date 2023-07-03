@@ -18,7 +18,7 @@ namespace CianAgencyComplaint
         public static Logger? logger = null;
         public static HashSet<IWebElement>? clickedElements = null;
         public static List<string> offerTitles = new List<string>();
-        public static string? API_KEY = "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";
+        // public static string? API_KEY = "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";
 
 
         // Основной метод (точка входа)

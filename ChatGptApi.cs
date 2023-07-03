@@ -6,7 +6,7 @@ using System.Text;
 public class ChatGptApi
 {
     private readonly OpenAIAPI api;
-    private readonly string API_KEY = "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";
+    private readonly string API_KEY = "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";
 
     public ChatGptApi()
     {

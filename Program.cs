@@ -4,24 +4,28 @@ namespace CianAgencyComplaint
 {
     class Program
     {
-        static Task Main(string[] args)
+        static async Task Main(string[] args)
         {
             int delayHours = GetDelayHours();
-
-            AgencyManager agencyManager = new AgencyManager();
             string agencyName = GetAgencyName();
+            IWebDriver driver = WebDriverFactory.GetDriver();
 
             while (true)
             {
-                IWebDriver driver = WebDriverFactory.GetDriver();
+                Task task = Task.Run(() =>
+                {
 
-                agencyManager.RunComplaintProcess(agencyName, driver);
+                    AgencyManager agencyManager = new AgencyManager();
+                    agencyManager.RunComplaintProcess(agencyName, driver);
+                });
 
                 // Ожидаем заданное время в часах перед следующей итерацией
                 Console.WriteLine($"Ожидание перед следующей итерацией: {delayHours} ч.");
-                Thread.Sleep(delayHours * 60 * 60 * 1000); // Преобразуем часы в миллисекунды
+                await Task.Delay(delayHours * 60 * 60 * 1000); // Преобразуем часы в миллисекунды
+                driver.Quit();
             }
         }
+
 
         // Задержка работы программы.
         static int GetDelayHours()
