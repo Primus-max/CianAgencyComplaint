@@ -7,7 +7,6 @@ C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\selenium-manager
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\selenium-manager\macos\selenium-manager
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\selenium-manager\windows\selenium-manager.exe
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\CianAgencyComplaint.exe
-C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\auth.json
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\CianAgencyComplaint.deps.json
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\CianAgencyComplaint.runtimeconfig.json
 C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\CianAgencyComplaint.dll
@@ -37,3 +36,4 @@ C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\refint\CianAgenc
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\CianAgencyComplaint.pdb
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\CianAgencyComplaint.genruntimeconfig.cache
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\ref\CianAgencyComplaint.dll
+C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\auth.json

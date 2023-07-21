@@ -8,10 +8,12 @@ namespace CianAgencyComplaint
         {
             int delayHours = GetDelayHours();
             string agencyName = GetAgencyName();
-            IWebDriver driver = WebDriverFactory.GetDriver();
+
 
             while (true)
             {
+                IWebDriver driver = WebDriverFactory.GetDriver();
+
                 Task task = Task.Run(() =>
                 {
 

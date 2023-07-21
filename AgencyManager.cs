@@ -31,7 +31,7 @@ namespace CianAgencyComplaint
             IWebDriver _driver = driver;
 
             // Переходим на страницу агентств
-            _driver.Navigate().GoToUrl("https://tomsk.cian.ru/agentstva/?regionId=4620&page=1");
+            _driver.Navigate().GoToUrl("https://tomsk.cian.ru/agentstva/?dealType=sale&regionId=4620&page=1");
             _driver.Manage().Window.Maximize();
 
             // Ожидаем полной загрузки страницы
@@ -148,6 +148,7 @@ namespace CianAgencyComplaint
 
                 foreach (IWebElement offerElement in offerElements)
                 {
+                    ClosePopup(driver);
 
                     if (offerTitles.Count == offerElements.Count)
                     {
@@ -230,43 +231,8 @@ namespace CianAgencyComplaint
                     }
 
                 }
-
-
-                //// Пагинация
-                //try
-                //{
-                //    // Проверка элемента наличие на странице, если нет, то пагинация закончилась
-                //    IWebElement nextButtons = driver.FindElement(By.XPath("//a[contains(@class, '_93444fe79c--button--Cp1dl') and span[text()='Дальше']]"));
-
-                //    // Получение текущего URL
-                //    string currentUrl = driver.Url;
-                //    string newUrl;
-
-                //    if (currentUrl.Contains("&p="))
-                //    {
-                //        // Заменяем значение параметра "&p=" на нужную страницу
-                //        newUrl = Regex.Replace(currentUrl, @"&p=\d+", "&p=" + pageNumber);
-                //    }
-                //    else
-                //    {
-                //        // Добавляем новый параметр "&p=" со значением страницы
-                //        newUrl = currentUrl + "&p=" + pageNumber;
-                //    }
-
-                //    // Переходим по новому URL
-                //    driver.Navigate().GoToUrl(newUrl);
-
-                //    WaitForDOMReady(driver);
-
-                //    pageNumber++;
-                //}
-                //catch (Exception)
-                //{
-                //    offerTitles = new List<string>();
-                //    return;
-                //}
             }
-            driver?.Close();
+
         }
 
 
@@ -575,9 +541,10 @@ namespace CianAgencyComplaint
                 // Кликаем на ссылку
                 ClickElement(driver, viewAllOffersLink);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                logger?.Error(ex, "Не удалось получить или кликнуть на элемент - Смотреть все предложения: {ErrorMessage}", ex.Message);
+                driver.Close();
+                return;
             }
 
             Thread.Sleep(random.Next(500, 1500));
@@ -607,8 +574,15 @@ namespace CianAgencyComplaint
         // Метод ожидания загрузки DOM дерева
         private static void WaitForDOMReady(IWebDriver driver)
         {
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(90));
-            wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            try
+            {
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(90));
+                wait.Until(driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete"));
+            }
+            catch (Exception)
+            {
+                return;
+            }
         }
 
         private static void ClickElement(IWebDriver driver, IWebElement element)
