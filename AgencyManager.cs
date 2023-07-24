@@ -3,6 +3,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog.Core;
+using System;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Text.RegularExpressions;
@@ -470,7 +471,7 @@ namespace CianAgencyComplaint
             string randomEmail = emailList[randomIndex];
 
             // Очищаем поле ввода перед вставкой нового адреса
-            ClearAndEnterText(emailInput, randomEmail);
+            //ClearAndEnterText(emailInput, randomEmail);
         }
 
         // Переключаюсь на новую вкладку
@@ -608,8 +609,13 @@ namespace CianAgencyComplaint
         private static void ClearAndEnterText(IWebElement element, string text)
         {
             Random random = new Random();
+            // Используем JavaScriptExecutor для выполнения JavaScript-кода
+            IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)((IWrapsDriver)element).WrappedDriver;
 
-            // Вводим текст по одному символу
+            // Очищаем поле ввода с помощью JavaScript
+            jsExecutor.ExecuteScript("arguments[0].value = '';", element);
+
+            // Вставляем текст по одному символу без изменений
             foreach (char letter in text)
             {
                 if (letter == '\b')
@@ -627,8 +633,5 @@ namespace CianAgencyComplaint
             }
             Thread.Sleep(random.Next(300, 700));
         }
-
     }
-
-
 }
