@@ -145,6 +145,8 @@ namespace CianAgencyComplaint
                 catch (Exception ex)
                 {
                     logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
+                    Console.WriteLine($"Не удалось получить offerElements {ex.Message}");
+                    continue;
                 }
 
 
@@ -161,7 +163,7 @@ namespace CianAgencyComplaint
                         continue;
                     }
 
-                    // Получение номера телефона
+                    // Получение номер телефона
                     curPhoneNumber = GetPhoneNumber(offerElement, driver);
 
                     try
@@ -173,19 +175,11 @@ namespace CianAgencyComplaint
                             offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
                             offerTitleText = offerTitleElement.Text;
                         }
-                        catch (NoSuchElementException ex)
-                        {
-                            // Если возникает StaleElementReferenceException, обновите страницу и начните заново
-                            driver.Navigate().Refresh();
-                            List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                            // Продолжение работы с оставшимися элементами
-                            continue;
-                        }
                         catch (Exception ex)
                         {
                             // Если возникает StaleElementReferenceException, обновите страницу и начните заново
                             driver.Navigate().Refresh();
-                            List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                            offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
                             // Продолжение работы с оставшимися элементами
                             continue;
                         }
@@ -318,18 +312,17 @@ namespace CianAgencyComplaint
                     Thread.Sleep(300);
 
                     randomComplaintItem.Click();
-                    //ClickElement(driver, randomComplaintItem);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     //logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
                 }
 
-
+                // Блок для вставки текста жалобы полученым от ChatGPT
                 try
                 {
                     // Ожидаем полной загрузки страницы
-                    Thread.Sleep(2000);
+                    Thread.Sleep(3000);
                     // Находим форму ComplaintItemForm
                     complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm'] textarea[name='message']"));
 
@@ -345,67 +338,35 @@ namespace CianAgencyComplaint
                         ClearAndEnterText(complaintForm, responseChatGPT);
                     }
                     complaintForm.Submit();
-                    // Находим кнопку отправки внутри формы
-                    //sendComplaintButton = complaintForm.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
-                    //// Выполняем клик на кнопке отправки
-                    //ClickElement(driver, sendComplaintButton);
                     Thread.Sleep(5000);
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
-                    //ClosePopup(driver);
                     //continue;
                 }
 
-                // Ожидаем полной загрузки страницы
-                Thread.Sleep(7000);
-            }
-
-            // Ожидаем полной загрузки страницы
-            Thread.Sleep(5000);
-
-            // Вставляю рандомную почту
-            try
-            {
-                // Находим элемент <input> по атрибуту name
-                IWebElement? emailInput = driver.FindElement(By.CssSelector("input[name='email']"));
-                EnterRandomEmail(emailInput);
-
-                offerTitles.Add(offerTitleText);
-                //// Добавляю элемент в список кликнутых
-                //clickedElements?.Add(offerCard);
-
-                // При удачной отправке жалобы добавляю телефон
-                if (!string.IsNullOrEmpty(curPhoneNumber))
+                // Если есть окно со вставкой email                
+                try
                 {
-                    phoneNumbers.Add(curPhoneNumber);
-                    logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
+                    // Проверяем наличие элемента
+                    IWebElement? closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
+
+                    // Если элемент найден, кликаем на него
+                    ClickElement(driver, closeButton);
+
+                    // При удачной отправке жалобы добавляю телефон и заголовок в список
+                    if (!string.IsNullOrEmpty(curPhoneNumber))
+                    {
+                        phoneNumbers.Add(curPhoneNumber);
+                        offerTitles.Add(offerTitleText);
+                        logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
+
+                        // Выходим из цикла, т.к. успешно отправили жалобу
+                        break;
+                    }
                 }
+                catch (Exception) { }
             }
-            catch (Exception ex)
-            {
-                logger?.Error(ex, "Не удалось отправить вставить email: {ErrorMessage}", ex.Message);
-            }
-
-
-            // Закрываем Popup
-            Actions actions = new Actions(driver);
-            actions.SendKeys(Keys.Escape).Perform();
-            Thread.Sleep(1000);
-            try
-            {
-                // Проверяем наличие элемента
-                IWebElement? closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
-
-                // Если элемент найден, кликаем на него
-                ClickElement(driver, closeButton);
-            }
-            catch (Exception) { }
-
-
-            // Ожидаем полной загрузки страницы
-            Thread.Sleep(5000);
         }
 
         // Получаю номер телефона 
