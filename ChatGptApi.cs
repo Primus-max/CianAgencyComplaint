@@ -6,7 +6,7 @@ using System.Text;
 public class ChatGptApi
 {
     private readonly OpenAIAPI api;
-    private readonly string API_KEY = "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";
+    private readonly string API_KEY = "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";
 
     public ChatGptApi()
     {
@@ -25,7 +25,7 @@ public class ChatGptApi
         {
             Temperature = 0.2,
             MaxTokens = 200,
-            Model = "gpt-3.5-turbo-16k"
+            Model = "gpt-3.5-turbo"
         };
 
         var chat = api.Chat.CreateConversation(chatRequest);

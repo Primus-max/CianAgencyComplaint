@@ -1,0 +1,279 @@
+2023-07-24 20:14:30.183 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-07-24 20:16:45.300 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=114.0.5735.199); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:30:51.766 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:31:02.870 +08:00 [ERR] Не удалось отправить жалобу: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+System.Net.Http.HttpRequestException: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+   at OpenAI_API.EndpointBase.HttpRequestRaw(String url, HttpMethod verb, Object postData, Boolean streaming)
+   at OpenAI_API.EndpointBase.HttpRequest[T](String url, HttpMethod verb, Object postData)
+   at OpenAI_API.EndpointBase.HttpPost[T](String url, Object postData)
+   at OpenAI_API.Chat.ChatEndpoint.CreateChatCompletionAsync(ChatRequest request)
+   at OpenAI_API.Chat.Conversation.GetResponseFromChatbotAsync()
+   at ChatGptApi.GetChatGptResponse(String prompt) in C:\Users\Goga\source\repos\CianAgencyComplaint\ChatGptApi.cs:line 104
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 341
+2023-08-02 14:31:12.633 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:31:22.920 +08:00 [ERR] Не удалось отправить жалобу: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+System.Net.Http.HttpRequestException: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+   at OpenAI_API.EndpointBase.HttpRequestRaw(String url, HttpMethod verb, Object postData, Boolean streaming)
+   at OpenAI_API.EndpointBase.HttpRequest[T](String url, HttpMethod verb, Object postData)
+   at OpenAI_API.EndpointBase.HttpPost[T](String url, Object postData)
+   at OpenAI_API.Chat.ChatEndpoint.CreateChatCompletionAsync(ChatRequest request)
+   at OpenAI_API.Chat.Conversation.GetResponseFromChatbotAsync()
+   at ChatGptApi.GetChatGptResponse(String prompt) in C:\Users\Goga\source\repos\CianAgencyComplaint\ChatGptApi.cs:line 104
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 341
+2023-08-02 14:31:33.294 +08:00 [ERR] Не удалось отправить жалобу: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+System.Net.Http.HttpRequestException: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+   at OpenAI_API.EndpointBase.HttpRequestRaw(String url, HttpMethod verb, Object postData, Boolean streaming)
+   at OpenAI_API.EndpointBase.HttpRequest[T](String url, HttpMethod verb, Object postData)
+   at OpenAI_API.EndpointBase.HttpPost[T](String url, Object postData)
+   at OpenAI_API.Chat.ChatEndpoint.CreateChatCompletionAsync(ChatRequest request)
+   at OpenAI_API.Chat.Conversation.GetResponseFromChatbotAsync()
+   at ChatGptApi.GetChatGptResponse(String prompt) in C:\Users\Goga\source\repos\CianAgencyComplaint\ChatGptApi.cs:line 104
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 341
+2023-08-02 14:31:43.905 +08:00 [ERR] Не удалось отправить жалобу: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+System.Net.Http.HttpRequestException: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+   at OpenAI_API.EndpointBase.HttpRequestRaw(String url, HttpMethod verb, Object postData, Boolean streaming)
+   at OpenAI_API.EndpointBase.HttpRequest[T](String url, HttpMethod verb, Object postData)
+   at OpenAI_API.EndpointBase.HttpPost[T](String url, Object postData)
+   at OpenAI_API.Chat.ChatEndpoint.CreateChatCompletionAsync(ChatRequest request)
+   at OpenAI_API.Chat.Conversation.GetResponseFromChatbotAsync()
+   at ChatGptApi.GetChatGptResponse(String prompt) in C:\Users\Goga\source\repos\CianAgencyComplaint\ChatGptApi.cs:line 104
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 341
+2023-08-02 14:31:55.191 +08:00 [ERR] Не удалось отправить жалобу: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+System.Net.Http.HttpRequestException: Error at chat/completions (https://api.openai.com/v1/chat/completions) with HTTP status code: TooManyRequests. Content: {
+    "error": {
+        "message": "Rate limit reached for default-gpt-3.5-turbo-16k in organization org-G0ymuMYmxEDfqbNZ5uawHTuD on requests per min. Limit: 3 / min. Please try again in 20s. Contact us through our help center at help.openai.com if you continue to have issues. Please add a payment method to your account to increase your rate limit. Visit https://platform.openai.com/account/billing to add a payment method.",
+        "type": "requests",
+        "param": null,
+        "code": "rate_limit_exceeded"
+    }
+}
+
+   at OpenAI_API.EndpointBase.HttpRequestRaw(String url, HttpMethod verb, Object postData, Boolean streaming)
+   at OpenAI_API.EndpointBase.HttpRequest[T](String url, HttpMethod verb, Object postData)
+   at OpenAI_API.EndpointBase.HttpPost[T](String url, Object postData)
+   at OpenAI_API.Chat.ChatEndpoint.CreateChatCompletionAsync(ChatRequest request)
+   at OpenAI_API.Chat.Conversation.GetResponseFromChatbotAsync()
+   at ChatGptApi.GetChatGptResponse(String prompt) in C:\Users\Goga\source\repos\CianAgencyComplaint\ChatGptApi.cs:line 104
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 341
+2023-08-02 14:47:51.609 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:48:01.168 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:51:03.785 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:56:32.544 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:56:42.127 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:58:01.715 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 14:58:11.469 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 15:00:38.103 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 15:00:47.649 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333
+2023-08-02 15:02:12.762 +08:00 [ERR] Не удалось отправить жалобу: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+OpenQA.Selenium.NoSuchElementException: no such element: Unable to locate element: {"method":"css selector","selector":"[data-name='ComplaintItemForm'] textarea[name='message']"}
+  (Session info: chrome=115.0.5790.110); For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors#no-such-element-exception
+   at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+   at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+   at OpenQA.Selenium.WebDriver.FindElement(String mechanism, String value)
+   at OpenQA.Selenium.By.<.ctor>b__11_0(ISearchContext context)
+   at OpenQA.Selenium.By.FindElement(ISearchContext context)
+   at OpenQA.Selenium.WebDriver.FindElement(By by)
+   at CianAgencyComplaint.AgencyManager.SendComplaintAsync(IWebDriver driver, IWebElement offerCard) in C:\Users\Goga\source\repos\CianAgencyComplaint\AgencyManager.cs:line 333

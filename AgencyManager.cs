@@ -86,7 +86,9 @@ namespace CianAgencyComplaint
 
             SwitchToNewTab(_driver);
 
-            ClickViewAllOffersLink(_driver);
+            // Выбираю категорию Продажа квартир (для выбора всех предложений)
+            ClickSaleCategoryLink(_driver);
+            //ClickViewAllOffersLink(_driver);
 
             SwitchToNewTab(_driver);
 
@@ -520,36 +522,72 @@ namespace CianAgencyComplaint
             Thread.Sleep(1000);
         }
 
-        // Кликаю на элементе - показать все предложения этого агенства
-        private static void ClickViewAllOffersLink(IWebDriver driver)
+        // Метод перехода (получения) в категорию "Продажа квартир и комнат"        
+
+        public static void ClickSaleCategoryLink(IWebDriver driver)
         {
-            Random random = new();
-
-            IWebElement? viewAllOffersLink = null;
-            // Ожидаем полной загрузки страницы
-            WaitForDOMReady(driver);
-
-            //Если всплыли окна, закрываю
-            ClosePopup(driver);
-
             try
             {
-                // Находим ссылку "Смотреть все предложения"
-                viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
-                // Прокручиваем страницу к ссылке
-                ScrollToElement(driver, viewAllOffersLink);
+                // Находим все элементы с классом "serp-list"
+                var serpListElements = driver.FindElements(By.ClassName("serp-list"));
 
-                // Кликаем на ссылку
-                ClickElement(driver, viewAllOffersLink);
-            }
-            catch (Exception)
-            {
-                driver.Close();
-                return;
-            }
 
-            Thread.Sleep(random.Next(500, 1500));
+                foreach (var serpListElement in serpListElements)
+                {
+                    // Находим элемент с классом "profile__subheading" внутри текущего "serp-list"
+                    var profileSubheadingElement = serpListElement.FindElement(By.ClassName("profile__subheading"));
+
+                    // Проверяем, содержит ли элемент "profile__subheading" текст "Продажа квартир и комнат"
+                    if (profileSubheadingElement.Text.Contains("Продажа квартир и комнат"))
+                    {
+                        ScrollToElement(driver, profileSubheadingElement);
+
+                        // Находим элемент <a> внутри текущего "serp-list"
+                        var linkElement = serpListElement.FindElement(By.TagName("a"));
+
+                        // Кликаем по ссылке
+                        linkElement.Click();
+
+                        // Выходим из цикла, чтобы не кликать по другим ссылкам, если условие уже выполнилось
+                        break;
+                    }
+                }
+            }
+            catch (Exception) { }
+
         }
+
+
+        // Кликаю на элементе - показать все предложения этого агенства
+        //private static void ClickViewAllOffersLink(IWebDriver driver)
+        //{
+        //    Random random = new();
+
+        //    IWebElement? viewAllOffersLink = null;
+        //    // Ожидаем полной загрузки страницы
+        //    WaitForDOMReady(driver);
+
+        //    //Если всплыли окна, закрываю
+        //    ClosePopup(driver);
+
+        //    try
+        //    {
+        //        // Находим ссылку "Смотреть все предложения"
+        //        viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
+        //        // Прокручиваем страницу к ссылке
+        //        ScrollToElement(driver, viewAllOffersLink);
+
+        //        // Кликаем на ссылку
+        //        ClickElement(driver, viewAllOffersLink);
+        //    }
+        //    catch (Exception)
+        //    {
+        //        driver.Close();
+        //        return;
+        //    }
+
+        //    Thread.Sleep(random.Next(500, 1500));
+        //}
 
         // Метод принятия куки
         private static void AcceptCookies(IWebDriver driver)
