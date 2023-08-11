@@ -351,8 +351,18 @@ namespace CianAgencyComplaint
                         ChatGptApi chatGptApi = new();
                         // Получаю текст выбранной жалобы
                         string? complaintText = randomComplaintItem?.Text;
+
                         // Отправляю / получаю ответ от ChatGPT
                         string? responseChatGPT = await chatGptApi.GetChatGptResponse(complaintText);
+
+                        try
+                        {
+                            responseChatGPT = await chatGptApi.GetChatGptResponse(complaintText);
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Вероятно произошла ошибка при генерации коментария от НЕЙРОНКИ {ex.Message}");
+                        }
 
                         // Вставляю текст в поле
                         ClearAndEnterText(complaintForm, responseChatGPT);

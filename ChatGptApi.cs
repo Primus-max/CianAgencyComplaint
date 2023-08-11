@@ -104,9 +104,9 @@ public class ChatGptApi
         chat.AppendUserInput(prompt);
         string response = await chat.GetResponseFromChatbotAsync();
 
+
         return response;
     }
-
     public static string? GetApiKey()
     {
         string filePath = "auth.json";
