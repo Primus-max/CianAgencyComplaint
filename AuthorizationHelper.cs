@@ -132,4 +132,5 @@ public class AuthData
 {
     public string? Id { get; set; }
     public string? Password { get; set; }
+    public string? API_KEY { get; set; }
 }

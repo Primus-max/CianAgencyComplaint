@@ -149,14 +149,20 @@ namespace CianAgencyComplaint
                     continue;
                 }
 
+                int curElementCount = 0;
+                int totalCountElementOnPage = 28;
 
                 foreach (IWebElement offerElement in offerElements)
                 {
                     ClosePopup(driver);
 
-                    if (offerTitles.Count == offerElements.Count)
+                    curElementCount++;
+
+                    if (offerElements.Count == curElementCount || offerElements.Count < totalCountElementOnPage)
                     {
                         PerformPagination(driver, ref pageNumber);
+
+                        Thread.Sleep(2000);
                         offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
                         offerTitles = new List<string>();
 
@@ -175,7 +181,7 @@ namespace CianAgencyComplaint
                             offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
                             offerTitleText = offerTitleElement.Text;
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             // Если возникает StaleElementReferenceException, обновите страницу и начните заново
                             driver.Navigate().Refresh();
@@ -275,22 +281,36 @@ namespace CianAgencyComplaint
             IWebElement? randomComplaintItem = null;
             IWebElement? complaintForm = null;
             IWebElement? sendComplaintButton = null;
+            int complaintItemCount = 0;
+
 
 
             while (true)
             {
+                // Проверяю открыто ли еще окно с выбором варианта жалобы
                 try
                 {
-                    // Получаем все элементы ComplaintItem
+                    IWebElement complaintPopup = driver.FindElement(By.CssSelector("div._93444fe79c--window--nAL7V._93444fe79c--window--jN5vA"));
+                }
+                catch (Exception)
+                {
+                    // Если окно с вариантами жалоб не удалось получить, то выходим
+                    break;
+                }
+
+                // Получаем все элементы ComplaintItem
+                try
+                {
                     complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
+
+                    // Получаем количество элементов ComplaintItem                
+                    complaintItemCount = complaintItems.Count;
+
                 }
                 catch (Exception ex)
                 {
                     logger?.Error(ex, "Ошибка в получении ComplaintItem: {ErrorMessage}", ex.Message);
                 }
-
-                // Получаем количество элементов ComplaintItem
-                int complaintItemCount = complaintItems.Count;
 
                 // Если нет элементов ComplaintItem, выходим из цикла
                 if (complaintItemCount == 0)
@@ -345,14 +365,27 @@ namespace CianAgencyComplaint
                     //continue;
                 }
 
+                // ВРЕМЕННО! получаю поле для вставки email
+                try
+                {
+
+                    IWebElement emailInput = driver.FindElement(By.CssSelector("input._93444fe79c--input--MqKSA"));
+                    EnterRandomEmail(emailInput);
+                    //_93444fe79c--input--MqKSA
+                }
+                catch (Exception)
+                {
+
+                }
+
                 // Если есть окно со вставкой email                
                 try
                 {
                     // Проверяем наличие элемента
-                    IWebElement? closeButton = driver.FindElement(By.CssSelector("button._93444fe79c--button--Cp1dl._93444fe79c--button--IqIpq._93444fe79c--XS--Q3OqJ._93444fe79c--button--OhHnj"));
+                    IWebElement sendButton = driver.FindElement(By.XPath("//button[contains(@class, '_93444fe79c--button--Cp1dl _93444fe79c--button--IqIpq _93444fe79c--XS--Q3OqJ _93444fe79c--button--OhHnj') and .//span[@class='_93444fe79c--text--rH6sj' and text()='Отправить']]"));
 
                     // Если элемент найден, кликаем на него
-                    ClickElement(driver, closeButton);
+                    ClickElement(driver, sendButton);
 
                     // При удачной отправке жалобы добавляю телефон и заголовок в список
                     if (!string.IsNullOrEmpty(curPhoneNumber))
@@ -433,7 +466,7 @@ namespace CianAgencyComplaint
             string randomEmail = emailList[randomIndex];
 
             // Очищаем поле ввода перед вставкой нового адреса
-            //ClearAndEnterText(emailInput, randomEmail);
+            ClearAndEnterText(emailInput, randomEmail);
         }
 
         // Переключаюсь на новую вкладку

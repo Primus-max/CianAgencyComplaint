@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using OpenAI_API;
 using OpenAI_API.Chat;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Text;
 public class ChatGptApi
 {
     private readonly OpenAIAPI api;
-    private readonly string API_KEY = "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";
+    private readonly string API_KEY = GetApiKey();
 
     public ChatGptApi()
     {
@@ -106,4 +107,25 @@ public class ChatGptApi
         return response;
     }
 
+    public static string? GetApiKey()
+    {
+        string filePath = "auth.json";
+
+        try
+        {
+            string jsonContent = File.ReadAllText(filePath);
+            AuthData authData = JsonConvert.DeserializeObject<AuthData>(jsonContent);
+
+            if (authData != null)
+            {
+                return authData.API_KEY;
+            }
+
+            return null;
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }
