@@ -151,6 +151,7 @@ namespace CianAgencyComplaint
 
                 int curElementCount = 0;
                 int totalCountElementOnPage = 28;
+                bool IsAllElementsOnOnePage = false;
 
                 foreach (IWebElement offerElement in offerElements)
                 {
@@ -158,7 +159,9 @@ namespace CianAgencyComplaint
 
                     curElementCount++;
 
-                    if (offerElements.Count == curElementCount || offerElements.Count < totalCountElementOnPage)
+                    if (offerElements.Count < 28) IsAllElementsOnOnePage = true;
+
+                    if (offerElements.Count == curElementCount && !IsAllElementsOnOnePage)
                     {
                         PerformPagination(driver, ref pageNumber);
 
@@ -236,7 +239,6 @@ namespace CianAgencyComplaint
             }
 
         }
-
 
         private static void PerformPagination(IWebDriver driver, ref int pageNumber)
         {
@@ -380,8 +382,7 @@ namespace CianAgencyComplaint
                 {
 
                     IWebElement emailInput = driver.FindElement(By.CssSelector("input._93444fe79c--input--MqKSA"));
-                    EnterRandomEmail(emailInput);
-                    //_93444fe79c--input--MqKSA
+                    //EnterRandomEmail(emailInput);                  
                 }
                 catch (Exception)
                 {
