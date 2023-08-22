@@ -1,14 +1,10 @@
-﻿using AngleSharp.Dom;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog.Core;
-using System;
-using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace CianAgencyComplaint
 {
@@ -283,6 +279,7 @@ namespace CianAgencyComplaint
             IWebElement? randomComplaintItem = null;
             IWebElement? complaintForm = null;
             IWebElement? sendComplaintButton = null;
+            SubComplaintItem? randomSubComplaint = null;
             int complaintItemCount = 0;
 
             string jsonFilePath = "ComplaintsAndText.json"; // Путь к JSON файлу
@@ -327,11 +324,9 @@ namespace CianAgencyComplaint
                 {
                     IWebElement correspondingComplaintItem = null;
 
-
-
                     foreach (var complaintItem in complaintItems)
                     {
-                        var sdfsd = complaintItem.Text;
+                        var compText = complaintItem.Text;
 
                         if (complaintItem.Text.Contains(selectedComplaint.MainComplaint))
                         {
@@ -340,15 +335,46 @@ namespace CianAgencyComplaint
                             break;
                         }
                     }
-
-                    ClickElement(driver, correspondingComplaintItem);
                 }
                 catch (Exception)
                 {
                     continue;
                 }
 
-                // Блок для вставки текста жалобы полученым от ChatGPT
+
+
+
+                // Выбараю поджалобу
+                try
+                {
+                    // Получаю варианты жалоб с сайта
+                    complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
+
+                    // Выбираю случайную поджалобу из выбранной жалобы
+                    randomSubComplaint = selectedComplaint.SubComplaints[random.Next(selectedComplaint.SubComplaints.Count)];
+
+                    // Нахожу такую поджалобу на сайте и кликаю
+                    IWebElement correspondingSubComplaintItem = null;
+
+                    foreach (var subComplaintItem in complaintItems)
+                    {
+                        var compText = subComplaintItem.Text;
+
+                        if (subComplaintItem.Text.Contains(randomSubComplaint.SubComplaint))
+                        {
+                            correspondingSubComplaintItem = subComplaintItem;
+                            subComplaintItem.Click();
+                            break;
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
+                }
+
+
+                // Блок для вставки текста жалобы
                 try
                 {
                     // Ожидаем полной загрузки страницы
@@ -358,24 +384,10 @@ namespace CianAgencyComplaint
 
                     if (string.IsNullOrEmpty(complaintForm.Text))
                     {
-                        ChatGptApi chatGptApi = new();
-                        // Получаю текст выбранной жалобы
-                        string? complaintText = randomComplaintItem?.Text;
-
-                        // Отправляю / получаю ответ от ChatGPT
-                        string? responseChatGPT = await chatGptApi.GetChatGptResponse(complaintText);
-
-                        try
-                        {
-                            responseChatGPT = await chatGptApi.GetChatGptResponse(complaintText);
-                        }
-                        catch (Exception ex)
-                        {
-                            Console.WriteLine($"Вероятно произошла ошибка при генерации коментария от НЕЙРОНКИ {ex.Message}");
-                        }
-
+                        // Выбираю случайный текст жалобы из поджалобы
+                        string randomText = randomSubComplaint.Texts[random.Next(randomSubComplaint.Texts.Count)];
                         // Вставляю текст в поле
-                        ClearAndEnterText(complaintForm, responseChatGPT);
+                        ClearAndEnterText(complaintForm, randomText);
                     }
                     complaintForm.Submit();
                     Thread.Sleep(5000);
