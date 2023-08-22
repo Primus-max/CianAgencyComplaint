@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Dom;
+using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
@@ -87,11 +88,10 @@ namespace CianAgencyComplaint
 
             // Выбираю категорию Продажа квартир (для выбора всех предложений)
             ClickSaleCategoryLink(_driver);
-            //ClickViewAllOffersLink(_driver);
 
-            SwitchToNewTab(_driver);
+            //SwitchToNewTab(_driver);
 
-            ProcessAllOffers(_driver);
+            //ProcessAllOffers(_driver);
         }
 
         // Метод поиска по названию агенства
@@ -129,7 +129,6 @@ namespace CianAgencyComplaint
             // Ожидаем полной загрузки страницы
             WaitForDOMReady(driver);
             int pageNumber = 2;
-
 
             List<IWebElement> offerElements = null;
 
@@ -240,6 +239,7 @@ namespace CianAgencyComplaint
 
         }
 
+        // Пагинация
         private static void PerformPagination(IWebDriver driver, ref int pageNumber)
         {
             try
@@ -285,7 +285,8 @@ namespace CianAgencyComplaint
             IWebElement? sendComplaintButton = null;
             int complaintItemCount = 0;
 
-
+            string jsonFilePath = "ComplaintsAndText.json"; // Путь к JSON файлу
+            List<Complaint> complaints = LoadComplaintsFromJson(jsonFilePath);
 
             while (true)
             {
@@ -304,40 +305,47 @@ namespace CianAgencyComplaint
                 try
                 {
                     complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
-
-                    // Получаем количество элементов ComplaintItem                
-                    complaintItemCount = complaintItems.Count;
-
                 }
                 catch (Exception ex)
                 {
                     logger?.Error(ex, "Ошибка в получении ComplaintItem: {ErrorMessage}", ex.Message);
-                }
-
-                // Если нет элементов ComplaintItem, выходим из цикла
-                if (complaintItemCount == 0)
-                {
                     break;
                 }
 
+                // Если нет элементов ComplaintItem, выходим из цикла
+                if (complaintItems.Count == 0) break;
 
-                // Генерируем случайное число от 0 до complaintItemCount - 1
-                Random random = new();
-                int randomIndex = random.Next(0, complaintItemCount);
+                // Генерирую случайное число
+                Random random = new Random();
+                int randomIndex = random.Next(0, complaints.Count);
 
+                // Выбираю случайную жалобу
+                Complaint selectedComplaint = complaints[randomIndex];
+
+                // Нахожу такую жалобу на сайте и кликаю
                 try
                 {
-                    // Выбираем случайный элемент ComplaintItem
-                    randomComplaintItem = complaintItems.ElementAt(randomIndex);
+                    IWebElement correspondingComplaintItem = null;
 
-                    ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", randomComplaintItem);
-                    Thread.Sleep(300);
 
-                    randomComplaintItem.Click();
+
+                    foreach (var complaintItem in complaintItems)
+                    {
+                        var sdfsd = complaintItem.Text;
+
+                        if (complaintItem.Text.Contains(selectedComplaint.MainComplaint))
+                        {
+                            correspondingComplaintItem = complaintItem;
+                            complaintItem.Click();
+                            break;
+                        }
+                    }
+
+                    ClickElement(driver, correspondingComplaintItem);
                 }
                 catch (Exception)
                 {
-                    //logger?.Error(ex, "Не удалось отправить жалобу: {ErrorMessage}", ex.Message);
+                    continue;
                 }
 
                 // Блок для вставки текста жалобы полученым от ChatGPT
@@ -410,6 +418,17 @@ namespace CianAgencyComplaint
                     }
                 }
                 catch (Exception) { }
+            }
+        }
+
+        // Метод для десериализации JSON
+        static List<Complaint> LoadComplaintsFromJson(string jsonFilePath)
+        {
+            using (StreamReader reader = new StreamReader(jsonFilePath))
+            {
+                string jsonContent = reader.ReadToEnd();
+                List<Complaint> complaints = JsonConvert.DeserializeObject<List<Complaint>>(jsonContent);
+                return complaints;
             }
         }
 
@@ -526,8 +545,7 @@ namespace CianAgencyComplaint
             Thread.Sleep(1000);
         }
 
-        // Метод перехода (получения) в категорию "Продажа квартир и комнат"        
-
+        // Метод перехода (получения) в категорию "Продажа квартир и комнат"    
         public static void ClickSaleCategoryLink(IWebDriver driver)
         {
             try
@@ -538,23 +556,28 @@ namespace CianAgencyComplaint
 
                 foreach (var serpListElement in serpListElements)
                 {
-                    // Находим элемент с классом "profile__subheading" внутри текущего "serp-list"
+                    // Получаю список категорий (Аренда, продажа и т.д)
                     var profileSubheadingElement = serpListElement.FindElement(By.ClassName("profile__subheading"));
 
-                    // Проверяем, содержит ли элемент "profile__subheading" текст "Продажа квартир и комнат"
-                    if (profileSubheadingElement.Text.Contains("Продажа квартир и комнат"))
+                    try
                     {
-                        ScrollToElement(driver, profileSubheadingElement);
-
-                        // Находим элемент <a> внутри текущего "serp-list"
+                        // Получаю ссылку
                         var linkElement = serpListElement.FindElement(By.TagName("a"));
 
-                        // Кликаем по ссылке
+                        // Открываю рубрику
                         linkElement.Click();
 
-                        // Выходим из цикла, чтобы не кликать по другим ссылкам, если условие уже выполнилось
-                        break;
+                        // Переключаюсь на вкладку если была открыта
+                        SwitchToNewTab(driver);
+
+                        // Остальная работа по отправке жалоб
+                        ProcessAllOffers(driver);
                     }
+                    catch (Exception)
+                    {
+                    }
+
+
                 }
             }
             catch (Exception) { }
@@ -675,5 +698,24 @@ namespace CianAgencyComplaint
             }
             Thread.Sleep(random.Next(300, 700));
         }
+
+        public class SubComplaintItem
+        {
+            public string? SubComplaint { get; set; }
+            public List<string>? Texts { get; set; }
+        }
+
+        public class Complaint
+        {
+            public string? MainComplaint { get; set; }
+            public List<SubComplaintItem>? SubComplaints { get; set; }
+        }
+
+
+        public class TextsComplaints
+        {
+            public List<string>? TextComplaint { get; set; }
+        }
+
     }
 }

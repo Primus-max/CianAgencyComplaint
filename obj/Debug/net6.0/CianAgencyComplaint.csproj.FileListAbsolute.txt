@@ -37,3 +37,5 @@ C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\refint\CianAgenc
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\CianAgencyComplaint.pdb
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\CianAgencyComplaint.genruntimeconfig.cache
 C:\Users\Goga\source\repos\CianAgencyComplaint\obj\Debug\net6.0\ref\CianAgencyComplaint.dll
+C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\ComplaintsAndText.json
+C:\Users\Goga\source\repos\CianAgencyComplaint\bin\Debug\net6.0\chromedriver.exe
