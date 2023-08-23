@@ -386,6 +386,7 @@ namespace CianAgencyComplaint
                                     if (subSubComplaintItem.Text.Contains(randomSubSubComplaint))
                                     {
                                         subSubComplaintItem.Click();
+                                        break;
                                     }
                                 }
 
