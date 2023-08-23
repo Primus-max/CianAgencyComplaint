@@ -347,6 +347,13 @@ namespace CianAgencyComplaint
                 // Выбараю поджалобу
                 try
                 {
+                    List<string> subComplaintsWithSubSubComplaints = new List<string>
+                    {
+                        "Позвонил. По телефону назвали другие параметры",
+                        "Выяснилось при просмотре",
+                        "Параметры объявления не соответствуют друг-другу или тексту описания"
+                    };
+
                     // Получаю варианты жалоб с сайта
                     complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
 
@@ -364,7 +371,26 @@ namespace CianAgencyComplaint
                         {
                             correspondingSubComplaintItem = subComplaintItem;
                             subComplaintItem.Click();
-                            break;
+
+                            if (randomSubComplaint.SubComplaint == "Цена больше, чем указано в объявлении")
+                            {
+                                // Получаю варианты жалоб с сайта
+                                complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
+
+                                // Выбираю случайную поджалобу из выбранной жалобы
+                                string randomSubSubComplaint = subComplaintsWithSubSubComplaints[random.Next(subComplaintsWithSubSubComplaints.Count)];
+
+                                foreach (var subSubComplaintItem in complaintItems)
+                                {
+                                    var compTextt = subSubComplaintItem.Text;
+                                    if (subSubComplaintItem.Text.Contains(randomSubSubComplaint))
+                                    {
+                                        subSubComplaintItem.Click();
+                                    }
+                                }
+
+                                break;
+                            }
                         }
                     }
                 }
@@ -378,7 +404,7 @@ namespace CianAgencyComplaint
                 try
                 {
                     // Ожидаем полной загрузки страницы
-                    Thread.Sleep(3000);
+                    Thread.Sleep(1500);
                     // Находим форму ComplaintItemForm
                     complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm'] textarea[name='message']"));
 
@@ -390,7 +416,7 @@ namespace CianAgencyComplaint
                         ClearAndEnterText(complaintForm, randomText);
                     }
                     complaintForm.Submit();
-                    Thread.Sleep(5000);
+                    Thread.Sleep(1000);
                 }
                 catch (Exception)
                 {
@@ -402,7 +428,7 @@ namespace CianAgencyComplaint
                 {
 
                     IWebElement emailInput = driver.FindElement(By.CssSelector("input._93444fe79c--input--MqKSA"));
-                    //EnterRandomEmail(emailInput);                  
+                    EnterRandomEmail(emailInput);
                 }
                 catch (Exception)
                 {
