@@ -128,110 +128,107 @@ namespace CianAgencyComplaint
 
             List<IWebElement> offerElements = null;
 
-            while (true)
+
+            try
             {
+                // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
+                offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
 
-                try
+            }
+            catch (Exception ex)
+            {
+                logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
+                Console.WriteLine($"Не удалось получить offerElements {ex.Message}");
+            }
+
+            int curElementCount = 0;
+            int totalCountElementOnPage = 28;
+            bool IsAllElementsOnOnePage = false;
+
+            foreach (IWebElement offerElement in offerElements)
+            {
+                ClosePopup(driver);
+
+                curElementCount++;
+
+                if (offerElements.Count < 28) IsAllElementsOnOnePage = true;
+
+                if (offerElements.Count == curElementCount && !IsAllElementsOnOnePage)
                 {
-                    // Получаем элементы с предложениями на текущей странице (в выдаче может быть больше одного)
+                    PerformPagination(driver, ref pageNumber);
+
+                    Thread.Sleep(2000);
                     offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                    offerTitles = new List<string>();
 
-                }
-                catch (Exception ex)
-                {
-                    logger?.Error(ex, "Ошибка в получении CardComponent: {ErrorMessage}", ex.Message);
-                    Console.WriteLine($"Не удалось получить offerElements {ex.Message}");
                     continue;
                 }
 
-                int curElementCount = 0;
-                int totalCountElementOnPage = 28;
-                bool IsAllElementsOnOnePage = false;
+                // Получение номер телефона
+                curPhoneNumber = GetPhoneNumber(offerElement, driver);
 
-                foreach (IWebElement offerElement in offerElements)
+                try
                 {
-                    ClosePopup(driver);
-
-                    curElementCount++;
-
-                    if (offerElements.Count < 28) IsAllElementsOnOnePage = true;
-
-                    if (offerElements.Count == curElementCount && !IsAllElementsOnOnePage)
-                    {
-                        PerformPagination(driver, ref pageNumber);
-
-                        Thread.Sleep(2000);
-                        offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                        offerTitles = new List<string>();
-
-                        continue;
-                    }
-
-                    // Получение номер телефона
-                    curPhoneNumber = GetPhoneNumber(offerElement, driver);
+                    IWebElement offerTitleElement = null;
 
                     try
                     {
-                        IWebElement offerTitleElement = null;
-
-                        try
-                        {
-                            offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
-                            offerTitleText = offerTitleElement.Text;
-                        }
-                        catch (Exception)
-                        {
-                            // Если возникает StaleElementReferenceException, обновите страницу и начните заново
-                            driver.Navigate().Refresh();
-                            offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                            // Продолжение работы с оставшимися элементами
-                            continue;
-                        }
-
-                        if (offerTitles.Contains(offerTitleText))
-                        {
-                            continue;
-                        }
-
-                        ScrollToElement(driver, offerElement);
-
-                        Thread.Sleep(2000);
-
-                        // Наводим курсор на элемент
-                        Actions actions = new Actions(driver);
-                        actions.MoveToElement(offerElement).Perform();
-
-                        Thread.Sleep(1000);
-
-                        try
-                        {
-                            IWebElement complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
-                            // Изменяем стиль элемента на "display: block" с использованием JavaScript
-                            ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
-
-                            Thread.Sleep(500);
-                            ClickElement(driver, complaintButton);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
-                        }
-
-                        // Отправляю жалобу
-                        await SendComplaintAsync(driver, offerElement);
-
-                        Thread.Sleep(2000);
+                        offerTitleElement = offerElement.FindElement(By.CssSelector("span[data-mark='OfferTitle']"));
+                        offerTitleText = offerTitleElement.Text;
                     }
-                    catch (StaleElementReferenceException)
+                    catch (Exception)
                     {
                         // Если возникает StaleElementReferenceException, обновите страницу и начните заново
                         driver.Navigate().Refresh();
-                        List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                        offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                        // Продолжение работы с оставшимися элементами
                         continue;
                     }
 
+                    if (offerTitles.Contains(offerTitleText))
+                    {
+                        continue;
+                    }
+
+                    ScrollToElement(driver, offerElement);
+
+                    Thread.Sleep(2000);
+
+                    // Наводим курсор на элемент
+                    Actions actions = new Actions(driver);
+                    actions.MoveToElement(offerElement).Perform();
+
+                    Thread.Sleep(1000);
+
+                    try
+                    {
+                        IWebElement complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
+                        // Изменяем стиль элемента на "display: block" с использованием JavaScript
+                        ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
+
+                        Thread.Sleep(500);
+                        ClickElement(driver, complaintButton);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
+                    }
+
+                    // Отправляю жалобу
+                    await SendComplaintAsync(driver, offerElement);
+
+                    Thread.Sleep(2000);
                 }
+                catch (StaleElementReferenceException)
+                {
+                    // Если возникает StaleElementReferenceException, обновите страницу и начните заново
+                    //driver.Navigate().Refresh();
+                    //List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                    //continue;
+                }
+
             }
+
 
         }
 
@@ -276,11 +273,9 @@ namespace CianAgencyComplaint
         private static async Task SendComplaintAsync(IWebDriver driver, IWebElement offerCard)
         {
             IReadOnlyCollection<IWebElement> complaintItems = null;
-            IWebElement? randomComplaintItem = null;
             IWebElement? complaintForm = null;
-            IWebElement? sendComplaintButton = null;
             SubComplaintItem? randomSubComplaint = null;
-            int complaintItemCount = 0;
+
 
             string jsonFilePath = "ComplaintsAndText.json"; // Путь к JSON файлу
             List<Complaint> complaints = LoadComplaintsFromJson(jsonFilePath);
@@ -427,7 +422,6 @@ namespace CianAgencyComplaint
                 // ВРЕМЕННО! получаю поле для вставки email
                 try
                 {
-
                     IWebElement emailInput = driver.FindElement(By.CssSelector("input._93444fe79c--input--MqKSA"));
                     EnterRandomEmail(emailInput);
                 }
@@ -596,12 +590,22 @@ namespace CianAgencyComplaint
                 foreach (var serpListElement in serpListElements)
                 {
                     // Получаю список категорий (Аренда, продажа и т.д)
-                    var profileSubheadingElement = serpListElement.FindElement(By.ClassName("profile__subheading"));
+                    //try
+                    //{
+                    //    var profileSubheadingElement = serpListElement.FindElement(By.ClassName("profile__subheading"));
+                    //}
+                    //catch (Exception)
+                    //{
+
+                    //}
 
                     try
                     {
                         // Получаю ссылку
                         var linkElement = serpListElement.FindElement(By.TagName("a"));
+
+                        // Сохраняем исходный хэндл текущей вкладки
+                        string originalHandle = driver.CurrentWindowHandle;
 
                         // Открываю рубрику
                         linkElement.Click();
@@ -611,9 +615,13 @@ namespace CianAgencyComplaint
 
                         // Остальная работа по отправке жалоб
                         ProcessAllOffers(driver);
+
+                        // Переключаемся обратно на исходную вкладку
+                        driver.SwitchTo().Window(originalHandle);
                     }
                     catch (Exception)
                     {
+                        continue;
                     }
 
 
@@ -623,39 +631,6 @@ namespace CianAgencyComplaint
 
         }
 
-
-        // Кликаю на элементе - показать все предложения этого агенства
-        //private static void ClickViewAllOffersLink(IWebDriver driver)
-        //{
-        //    Random random = new();
-
-        //    IWebElement? viewAllOffersLink = null;
-        //    // Ожидаем полной загрузки страницы
-        //    WaitForDOMReady(driver);
-
-        //    //Если всплыли окна, закрываю
-        //    ClosePopup(driver);
-
-        //    try
-        //    {
-        //        // Находим ссылку "Смотреть все предложения"
-        //        viewAllOffersLink = driver.FindElement(By.CssSelector("[data-ga-action='open_all_offers']"));
-        //        // Прокручиваем страницу к ссылке
-        //        ScrollToElement(driver, viewAllOffersLink);
-
-        //        // Кликаем на ссылку
-        //        ClickElement(driver, viewAllOffersLink);
-        //    }
-        //    catch (Exception)
-        //    {
-        //        driver.Close();
-        //        return;
-        //    }
-
-        //    Thread.Sleep(random.Next(500, 1500));
-        //}
-
-        // Метод принятия куки
         private static void AcceptCookies(IWebDriver driver)
         {
             IWebElement? acceptButton = null;
