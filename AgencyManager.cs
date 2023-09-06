@@ -145,26 +145,35 @@ namespace CianAgencyComplaint
             int totalCountElementOnPage = 28;
             bool IsAllElementsOnOnePage = false;
 
-            foreach (IWebElement offerElement in offerElements)
+            HashSet<int> visitedIndices = new HashSet<int>();
+            Random random = new Random();
+
+            while (visitedIndices.Count < offerElements.Count)
             {
+                int randomIndex;
+
+                do
+                {
+                    randomIndex = random.Next(offerElements.Count);
+                } while (visitedIndices.Contains(randomIndex));
+
+                visitedIndices.Add(randomIndex);
+                IWebElement offerElement = offerElements.ElementAt(randomIndex);
+
                 ClosePopup(driver);
 
                 curElementCount++;
 
-                if (offerElements.Count < 28) IsAllElementsOnOnePage = true;
-
-                if (offerElements.Count == curElementCount && !IsAllElementsOnOnePage)
+                if (offerElements.Count == curElementCount || offerElements.Count < totalCountElementOnPage)
                 {
                     PerformPagination(driver, ref pageNumber);
 
                     Thread.Sleep(2000);
                     offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                    offerTitles = new List<string>();
-
+                    visitedIndices.Clear();
                     continue;
                 }
 
-                // Получение номер телефона
                 curPhoneNumber = GetPhoneNumber(offerElement, driver);
 
                 try
@@ -178,10 +187,9 @@ namespace CianAgencyComplaint
                     }
                     catch (Exception)
                     {
-                        // Если возникает StaleElementReferenceException, обновите страницу и начните заново
                         driver.Navigate().Refresh();
                         offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                        // Продолжение работы с оставшимися элементами
+                        visitedIndices.Clear();
                         continue;
                     }
 
@@ -194,7 +202,6 @@ namespace CianAgencyComplaint
 
                     Thread.Sleep(2000);
 
-                    // Наводим курсор на элемент
                     Actions actions = new Actions(driver);
                     actions.MoveToElement(offerElement).Perform();
 
@@ -203,7 +210,6 @@ namespace CianAgencyComplaint
                     try
                     {
                         IWebElement complaintButton = driver.FindElement(By.CssSelector("[data-mark='ComplainControl']"));
-                        // Изменяем стиль элемента на "display: block" с использованием JavaScript
                         ((IJavaScriptExecutor)driver).ExecuteScript("arguments[0].style.display = 'block';", complaintButton);
 
                         Thread.Sleep(500);
@@ -214,21 +220,18 @@ namespace CianAgencyComplaint
                         logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
                     }
 
-                    // Отправляю жалобу
                     await SendComplaintAsync(driver, offerElement);
 
                     Thread.Sleep(2000);
                 }
                 catch (StaleElementReferenceException)
                 {
-                    // Если возникает StaleElementReferenceException, обновите страницу и начните заново
-                    //driver.Navigate().Refresh();
-                    //List<IWebElement> elementsForIterator = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                    //continue;
+                    driver.Navigate().Refresh();
+                    offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
+                    visitedIndices.Clear();
+                    continue;
                 }
-
             }
-
 
         }
 
@@ -565,18 +568,25 @@ namespace CianAgencyComplaint
             var boundingRect = (Dictionary<string, object>)js.ExecuteScript("return arguments[0].getBoundingClientRect();", element);
             var elementLocation = new Point(Convert.ToInt32(boundingRect["x"]), Convert.ToInt32(boundingRect["y"]));
 
-
             // Получаем размеры окна браузера
             var windowSize = driver.Manage().Window.Size;
 
             // Вычисляем вертикальную позицию для прокрутки, чтобы элемент был посередине экрана
             var verticalScrollPosition = elementLocation.Y - windowSize.Height / 2;
 
-            // Выполняем скрипт для прокрутки страницы по вертикали
-            js.ExecuteScript($"window.scrollTo(0, {verticalScrollPosition});");
+            // Параметры для плавной анимации прокрутки
+            int stepCount = 150; // Количество шагов
+            int delayMilliseconds = 50; // Задержка между шагами (в миллисекундах)
 
-            Thread.Sleep(1000);
+            // Выполняем плавную прокрутку страницы
+            for (int i = 0; i <= stepCount; i++)
+            {
+                var yOffset = verticalScrollPosition * i / stepCount;
+                js.ExecuteScript($"window.scrollTo(0, {yOffset});");
+                Thread.Sleep(delayMilliseconds);
+            }
         }
+
 
         // Метод перехода (получения) в категорию "Продажа квартир и комнат"    
         public static void ClickSaleCategoryLink(IWebDriver driver)
