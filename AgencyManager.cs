@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using AngleSharp.Html;
+using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog.Core;
 using System.Drawing;
+using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 namespace CianAgencyComplaint
@@ -143,34 +145,44 @@ namespace CianAgencyComplaint
 
             int curElementCount = 0;
             int totalCountElementOnPage = 28;
-            bool IsAllElementsOnOnePage = false;
+            bool IsAllElementsOnOnePage = offerElements?.Count < totalCountElementOnPage ? true : false;
 
-            HashSet<int> visitedIndices = new HashSet<int>();
+            HashSet<IWebElement> visitedOfferElement = new HashSet<IWebElement>();
             Random random = new Random();
 
-            while (visitedIndices.Count < offerElements.Count)
+            do
             {
                 int randomIndex;
 
-                do
-                {
-                    randomIndex = random.Next(offerElements.Count);
-                } while (visitedIndices.Contains(randomIndex));
+                // Получаю рандомный индекс
+                randomIndex = random.Next(offerElements.Count);
 
-                visitedIndices.Add(randomIndex);
+                if (offerElements.Count == 0) return;
+
+                // Выбираю рандомный оффер
                 IWebElement offerElement = offerElements.ElementAt(randomIndex);
 
+                // Иду дальше если оффер есть в списке пройденных
+                if (visitedOfferElement.Contains(offerElement)) continue;
+
+                // Закрываю если вдруг всплыло какое-нибудь окно
                 ClosePopup(driver);
 
                 curElementCount++;
-
-                if (offerElements.Count == curElementCount || offerElements.Count < totalCountElementOnPage)
+               
+                // Если прошли все элементы на странице переходим на следующую
+                if (offerElements.Count - 1 == visitedOfferElement.Count && !IsAllElementsOnOnePage)
                 {
+                    if (IsAllElementsOnOnePage)
+                    {
+                        return;
+                    }
+
                     PerformPagination(driver, ref pageNumber);
 
                     Thread.Sleep(2000);
                     offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                    visitedIndices.Clear();
+                    visitedOfferElement.Clear();
                     continue;
                 }
 
@@ -189,7 +201,6 @@ namespace CianAgencyComplaint
                     {
                         driver.Navigate().Refresh();
                         offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                        visitedIndices.Clear();
                         continue;
                     }
 
@@ -220,7 +231,11 @@ namespace CianAgencyComplaint
                         logger?.Error(ex, "Ошибка в получении кнопки - ПОЖАЛОВАТЬСЯ: {ErrorMessage}", ex.Message);
                     }
 
+                    // Отправляю жаобу по выбранному офферу
                     await SendComplaintAsync(driver, offerElement);
+
+                    // Добавляю пройденный элемент в список 
+                    visitedOfferElement.Add(offerElement);
 
                     Thread.Sleep(2000);
                 }
@@ -228,11 +243,9 @@ namespace CianAgencyComplaint
                 {
                     driver.Navigate().Refresh();
                     offerElements = driver.FindElements(By.CssSelector("._93444fe79c--container--Povoi._93444fe79c--cont--OzgVc")).ToList();
-                    visitedIndices.Clear();
                     continue;
                 }
-            }
-
+            } while (visitedOfferElement.Count < offerElements?.Count);
         }
 
         // Пагинация
@@ -370,8 +383,15 @@ namespace CianAgencyComplaint
                             correspondingSubComplaintItem = subComplaintItem;
                             subComplaintItem.Click();
 
-                            if (randomSubComplaint.SubComplaint == "Цена больше, чем указано в объявлении")
+                            if (compText == "Объект соответствует фотографиям, но находится по другому адресу")
                             {
+                                var complaintItemsInner = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
+                                complaintItemsInner[0].Click();
+                                continue;
+                            }
+
+                            if (randomSubComplaint.SubComplaint == "Цена больше, чем указано в объявлении")
+                            {                               
                                 // Получаю варианты жалоб с сайта
                                 complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
 
@@ -381,6 +401,7 @@ namespace CianAgencyComplaint
                                 foreach (var subSubComplaintItem in complaintItems)
                                 {
                                     var compTextt = subSubComplaintItem.Text;
+                                   
                                     if (subSubComplaintItem.Text.Contains(randomSubSubComplaint))
                                     {
                                         subSubComplaintItem.Click();
@@ -426,7 +447,7 @@ namespace CianAgencyComplaint
                 try
                 {
                     IWebElement emailInput = driver.FindElement(By.CssSelector("input._93444fe79c--input--MqKSA"));
-                    EnterRandomEmail(emailInput);
+                    //EnterRandomEmail(emailInput);
                 }
                 catch (Exception)
                 {
