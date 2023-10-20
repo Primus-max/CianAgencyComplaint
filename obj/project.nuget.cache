@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "X7IEPssosnmcyojpkwMscVi6t528Vc7ZTmgtGwfIhTtz9kN9ulkgmfaYHMn/pnvaiitjwbUuxZplB1qv9SPxXQ==",
+  "dgSpecHash": "n0LLJ5qzxTetHNQLd+t920GVfowxdGYHO8XCB6owVmqd9Tj3yvcOvkMBzD+cITkl++58jaIRveM1RzFzkUQJTQ==",
   "success": true,
   "projectFilePath": "C:\\Users\\FedoTT\\source\\repos\\CianAgencyComplaint\\CianAgencyComplaint.csproj",
   "expectedPackageFiles": [
@@ -21,7 +21,7 @@
     "C:\\Users\\FedoTT\\.nuget\\packages\\openai\\1.7.2\\openai.1.7.2.nupkg.sha512",
     "C:\\Users\\FedoTT\\.nuget\\packages\\selenium.support\\4.10.0\\selenium.support.4.10.0.nupkg.sha512",
     "C:\\Users\\FedoTT\\.nuget\\packages\\selenium.webdriver\\4.10.0\\selenium.webdriver.4.10.0.nupkg.sha512",
-    "C:\\Users\\FedoTT\\.nuget\\packages\\selenium.webdriver.chromedriver\\114.0.5735.9000\\selenium.webdriver.chromedriver.114.0.5735.9000.nupkg.sha512",
+    "C:\\Users\\FedoTT\\.nuget\\packages\\selenium.webdriver.chromedriver\\118.0.5993.7000\\selenium.webdriver.chromedriver.118.0.5993.7000.nupkg.sha512",
     "C:\\Users\\FedoTT\\.nuget\\packages\\serilog\\3.0.1\\serilog.3.0.1.nupkg.sha512",
     "C:\\Users\\FedoTT\\.nuget\\packages\\serilog.sinks.file\\5.0.0\\serilog.sinks.file.5.0.0.nupkg.sha512",
     "C:\\Users\\FedoTT\\.nuget\\packages\\sharpziplib\\1.4.2\\sharpziplib.1.4.2.nupkg.sha512",

@@ -1,8 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
-using WebDriverManager;
-using WebDriverManager.DriverConfigs.Impl;
 
 namespace CianAgencyComplaint
 {
@@ -10,14 +8,21 @@ namespace CianAgencyComplaint
     {
         public static IWebDriver GetDriver()
         {
-            // Проверяем наличие драйвера браузера и скачиваем его автоматически, если он отсутствует
-            new DriverManager().SetUpDriver(new ChromeConfig());
+            ChromeDriver driver = null!;
+            try
+            {
+                // Создаем экземпляр драйвера
+                driver = new ChromeDriver();
 
-            // Создаем экземпляр драйвера
-            ChromeDriver driver = new ChromeDriver();
-
-            // Установка глобального ожидания
-            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(120));
+                // Установка глобального ожидания
+                WebDriverWait wait = new(driver, TimeSpan.FromSeconds(120));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"С драйвером возникли проблемки {ex.Message}");
+                Console.WriteLine("Для продолжения нажми любую кнопку");
+                Console.ReadKey();
+            }
 
             return driver;
         }

@@ -1,11 +1,9 @@
-﻿using AngleSharp.Html;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using Serilog.Core;
 using System.Drawing;
-using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
 
 namespace CianAgencyComplaint
@@ -74,9 +72,6 @@ namespace CianAgencyComplaint
             // Плавно прокручиваем к агентству и кликаем
             ScrollToElement(_driver, agencyCard);
 
-            //WaitForDOMReady(_driver);
-
-            //foundedCard.Click();
 
             ClickElement(_driver, agencyCard);
 
@@ -169,7 +164,7 @@ namespace CianAgencyComplaint
                 ClosePopup(driver);
 
                 curElementCount++;
-               
+
                 // Если прошли все элементы на странице переходим на следующую
                 if (offerElements.Count - 1 == visitedOfferElement.Count && !IsAllElementsOnOnePage)
                 {
@@ -298,6 +293,30 @@ namespace CianAgencyComplaint
 
             while (true)
             {
+                // Блок для вставки текста жалобы
+                try
+                {
+                    Random randomm = new Random();
+                    // Ожидаем полной загрузки страницы
+                    Thread.Sleep(1500);
+                    // Находим форму ComplaintItemForm
+                    complaintForm = driver.FindElement(By.Name("message"));
+
+                    if (string.IsNullOrEmpty(complaintForm.Text))
+                    {
+                        // Выбираю случайный текст жалобы из поджалобы
+                        string randomText = randomSubComplaint.Texts[randomm.Next(randomSubComplaint.Texts.Count)];
+                        // Вставляю текст в поле
+                        ClearAndEnterText(complaintForm, randomText);
+                    }
+                    complaintForm.Submit();
+                    Thread.Sleep(1000);
+                }
+                catch (Exception)
+                {
+                    //continue;
+                }
+
                 // Проверяю открыто ли еще окно с выбором варианта жалобы
                 try
                 {
@@ -309,10 +328,10 @@ namespace CianAgencyComplaint
                     break;
                 }
 
-                // Получаем все элементы ComplaintItem
+                // Получаем все элементы ComplaintItem   
                 try
                 {
-                    complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
+                    complaintItems = driver.FindElements(By.ClassName("f41ed422f8--content--JOjkR"));
                 }
                 catch (Exception ex)
                 {
@@ -339,10 +358,20 @@ namespace CianAgencyComplaint
                     {
                         var compText = complaintItem.Text;
 
-                        if (complaintItem.Text.Contains(selectedComplaint.MainComplaint))
+                        bool mainComplaintMatch = compText.Contains(selectedComplaint.MainComplaint);
+
+                        bool subComplaintMatch = selectedComplaint.SubComplaints.Any(sub => compText.Contains(sub.SubComplaint));
+
+                        if (mainComplaintMatch || subComplaintMatch)
                         {
                             correspondingComplaintItem = complaintItem;
                             complaintItem.Click();
+                            IJavaScriptExecutor jsExecutor = (IJavaScriptExecutor)driver;
+                            // Изменяем стиль элемента, чтобы сделать его видимым
+                            jsExecutor.ExecuteScript("arguments[0].style.display = 'block';", correspondingComplaintItem);
+
+                            // Выполняем клик
+                            jsExecutor.ExecuteScript("arguments[0].click();", correspondingComplaintItem);
                             break;
                         }
                     }
@@ -351,6 +380,7 @@ namespace CianAgencyComplaint
                 {
                     continue;
                 }
+
 
 
 
@@ -391,7 +421,7 @@ namespace CianAgencyComplaint
                             }
 
                             if (randomSubComplaint.SubComplaint == "Цена больше, чем указано в объявлении")
-                            {                               
+                            {
                                 // Получаю варианты жалоб с сайта
                                 complaintItems = driver.FindElements(By.CssSelector("[data-name='ComplaintItem']"));
 
@@ -401,7 +431,7 @@ namespace CianAgencyComplaint
                                 foreach (var subSubComplaintItem in complaintItems)
                                 {
                                     var compTextt = subSubComplaintItem.Text;
-                                   
+
                                     if (subSubComplaintItem.Text.Contains(randomSubSubComplaint))
                                     {
                                         subSubComplaintItem.Click();
@@ -420,28 +450,7 @@ namespace CianAgencyComplaint
                 }
 
 
-                // Блок для вставки текста жалобы
-                try
-                {
-                    // Ожидаем полной загрузки страницы
-                    Thread.Sleep(1500);
-                    // Находим форму ComplaintItemForm
-                    complaintForm = driver.FindElement(By.CssSelector("[data-name='ComplaintItemForm'] textarea[name='message']"));
-
-                    if (string.IsNullOrEmpty(complaintForm.Text))
-                    {
-                        // Выбираю случайный текст жалобы из поджалобы
-                        string randomText = randomSubComplaint.Texts[random.Next(randomSubComplaint.Texts.Count)];
-                        // Вставляю текст в поле
-                        ClearAndEnterText(complaintForm, randomText);
-                    }
-                    complaintForm.Submit();
-                    Thread.Sleep(1000);
-                }
-                catch (Exception)
-                {
-                    //continue;
-                }
+                
 
                 // ВРЕМЕННО! получаю поле для вставки email
                 try

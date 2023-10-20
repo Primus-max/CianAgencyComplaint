@@ -11,7 +11,7 @@
           "OpenAI": "1.7.2",
           "Selenium.Support": "4.10.0",
           "Selenium.WebDriver": "4.10.0",
-          "Selenium.WebDriver.ChromeDriver": "114.0.5735.9000",
+          "Selenium.WebDriver.ChromeDriver": "118.0.5993.7000",
           "Serilog": "3.0.1",
           "Serilog.Sinks.File": "5.0.0",
           "WebDriverManager": "2.16.3"
@@ -189,7 +189,7 @@
           }
         }
       },
-      "Selenium.WebDriver.ChromeDriver/114.0.5735.9000": {},
+      "Selenium.WebDriver.ChromeDriver/118.0.5993.7000": {},
       "Serilog/3.0.1": {
         "runtime": {
           "lib/net6.0/Serilog.dll": {
@@ -371,12 +371,12 @@
       "path": "selenium.webdriver/4.10.0",
       "hashPath": "selenium.webdriver.4.10.0.nupkg.sha512"
     },
-    "Selenium.WebDriver.ChromeDriver/114.0.5735.9000": {
+    "Selenium.WebDriver.ChromeDriver/118.0.5993.7000": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-BgBGrbMiyhq+wZjWfKE0t5A+TVlY5kbUj8BcxPSMjuGOW2CinaMNZq567ZjxDNDvnqJBKmx2mPa5Hkjolt28Lg==",
-      "path": "selenium.webdriver.chromedriver/114.0.5735.9000",
-      "hashPath": "selenium.webdriver.chromedriver.114.0.5735.9000.nupkg.sha512"
+      "sha512": "sha512-P+oMf57Rbt2mKr3k2OFijtg+Vm3xHYe147LWQLqB0aumjKuWxoZVZw1+K7rr9KqdGe646kvIVjtQH0+eheCawA==",
+      "path": "selenium.webdriver.chromedriver/118.0.5993.7000",
+      "hashPath": "selenium.webdriver.chromedriver.118.0.5993.7000.nupkg.sha512"
     },
     "Serilog/3.0.1": {
       "type": "package",

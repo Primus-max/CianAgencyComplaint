@@ -6,18 +6,18 @@ namespace CianAgencyComplaint
     {
         static async Task Main(string[] args)
         {
-
+            
             #region Защита
-            
-            DateTime expirationDate = new DateTime(2023, 09, 10);
-            
-            DateTime currentDate = DateTime.Now;                       
 
-            if (currentDate > expirationDate)
-            {
-                Console.WriteLine("Приложение больше не работает, возможно вы не оплатили какой то этап разработки. Свяжитесь с разработчиком.");
-                return; // Завершите приложение
-            }
+            //DateTime expirationDate = new DateTime(2023, 09, 10);
+            
+            //DateTime currentDate = DateTime.Now;                       
+
+            //if (currentDate > expirationDate)
+            //{
+            //    Console.WriteLine("Приложение больше не работает, возможно вы не оплатили какой то этап разработки. Свяжитесь с разработчиком.");
+            //    return; // Завершите приложение
+            //}
             #endregion
 
             int delayHours = GetDelayHours();
@@ -38,7 +38,8 @@ namespace CianAgencyComplaint
                 Console.WriteLine($"Ожидание перед следующей итерацией: {delayHours} ч.");
                 await Task.Delay(delayHours * 60 * 60 * 1000); // Преобразуем часы в миллисекунды
                 driver.Quit();
-            }
+            }           
+            
         }
 
 

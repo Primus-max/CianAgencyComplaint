@@ -1,4 +1,3 @@
-C:\Users\FedoTT\source\repos\CianAgencyComplaint\bin\Debug\net6.0\chromedriver.exe
 C:\Users\FedoTT\source\repos\CianAgencyComplaint\bin\Debug\net6.0\ComplaintsAndText.json
 C:\Users\FedoTT\source\repos\CianAgencyComplaint\bin\Debug\net6.0\selenium-manager\linux\selenium-manager
 C:\Users\FedoTT\source\repos\CianAgencyComplaint\bin\Debug\net6.0\selenium-manager\macos\selenium-manager
