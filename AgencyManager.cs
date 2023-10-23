@@ -308,6 +308,18 @@ namespace CianAgencyComplaint
                         string randomText = randomSubComplaint.Texts[randomm.Next(randomSubComplaint.Texts.Count)];
                         // Вставляю текст в поле
                         ClearAndEnterText(complaintForm, randomText);
+
+
+                        // При удачной отправке жалобы добавляю телефон и заголовок в список
+                        if (!string.IsNullOrEmpty(curPhoneNumber))
+                        {
+                            phoneNumbers.Add(curPhoneNumber);
+                            offerTitles.Add(offerTitleText);
+                            logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
+
+                            // Выходим из цикла, т.к. успешно отправили жалобу
+                            break;
+                        }
                     }
                     complaintForm.Submit();
                     Thread.Sleep(1000);
@@ -316,6 +328,28 @@ namespace CianAgencyComplaint
                 {
                     //continue;
                 }
+
+                // Если есть окно со вставкой email                
+                try
+                {
+                    // Проверяем наличие элемента
+                    IWebElement sendButton = driver.FindElement(By.XPath("//button[contains(@class, '_93444fe79c--button--Cp1dl _93444fe79c--button--IqIpq _93444fe79c--XS--Q3OqJ _93444fe79c--button--OhHnj') and .//span[@class='_93444fe79c--text--rH6sj' and text()='Отправить']]"));
+
+                    // Если элемент найден, кликаем на него
+                    ClickElement(driver, sendButton);
+
+                    // При удачной отправке жалобы добавляю телефон и заголовок в список
+                    if (!string.IsNullOrEmpty(curPhoneNumber))
+                    {
+                        phoneNumbers.Add(curPhoneNumber);
+                        offerTitles.Add(offerTitleText);
+                        logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
+
+                        // Выходим из цикла, т.к. успешно отправили жалобу
+                        break;
+                    }
+                }
+                catch (Exception) { }
 
                 // Проверяю открыто ли еще окно с выбором варианта жалобы
                 try
@@ -461,29 +495,7 @@ namespace CianAgencyComplaint
                 catch (Exception)
                 {
 
-                }
-
-                // Если есть окно со вставкой email                
-                try
-                {
-                    // Проверяем наличие элемента
-                    IWebElement sendButton = driver.FindElement(By.XPath("//button[contains(@class, '_93444fe79c--button--Cp1dl _93444fe79c--button--IqIpq _93444fe79c--XS--Q3OqJ _93444fe79c--button--OhHnj') and .//span[@class='_93444fe79c--text--rH6sj' and text()='Отправить']]"));
-
-                    // Если элемент найден, кликаем на него
-                    ClickElement(driver, sendButton);
-
-                    // При удачной отправке жалобы добавляю телефон и заголовок в список
-                    if (!string.IsNullOrEmpty(curPhoneNumber))
-                    {
-                        phoneNumbers.Add(curPhoneNumber);
-                        offerTitles.Add(offerTitleText);
-                        logger?.Information($"Жалоба отправлена на номер: {curPhoneNumber} || Объект: {offerTitleText}");
-
-                        // Выходим из цикла, т.к. успешно отправили жалобу
-                        break;
-                    }
-                }
-                catch (Exception) { }
+                }                
             }
         }
 
@@ -628,16 +640,7 @@ namespace CianAgencyComplaint
 
 
                 foreach (var serpListElement in serpListElements)
-                {
-                    // Получаю список категорий (Аренда, продажа и т.д)
-                    //try
-                    //{
-                    //    var profileSubheadingElement = serpListElement.FindElement(By.ClassName("profile__subheading"));
-                    //}
-                    //catch (Exception)
-                    //{
-
-                    //}
+                {                   
 
                     try
                     {
